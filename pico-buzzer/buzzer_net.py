@@ -16,6 +16,7 @@ class BuzzerHubClient:
         wifi_ssid,
         wifi_password,
         server_host,
+        player_name=None,
         app_kind="buzzer",
         server_port=8787,
         server_path="/api/buzz",
@@ -28,6 +29,7 @@ class BuzzerHubClient:
         self.wifi_ssid = wifi_ssid
         self.wifi_password = wifi_password
         self.server_host = server_host
+        self.player_name = player_name.strip() if isinstance(player_name, str) else None
         self.app_kind = app_kind
         self.server_port = server_port
         self.server_path = server_path
@@ -59,6 +61,9 @@ class BuzzerHubClient:
             "device_id": self.device_id,
             "app_kind": self.app_kind,
         }
+
+        if self.player_name:
+            payload["player_name"] = self.player_name
 
         if button_pin is not None:
             payload["button_pin"] = button_pin

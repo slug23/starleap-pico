@@ -12,6 +12,7 @@ SERVER_PORT = 8787
 SERVER_PATH = "/api/buzz"
 CHECKIN_PATH = "/api/check-in"
 DEBUG_WIFI = True
+PLAYER_NAME = ""
 
 # Change these only if the wires move to different pins.
 BUTTON_PIN = 14
@@ -32,6 +33,7 @@ hub = BuzzerHubClient(
     wifi_ssid=WIFI_SSID,
     wifi_password=WIFI_PASSWORD,
     server_host=SERVER_HOST,
+    player_name=PLAYER_NAME,
     app_kind="buzzer",
     server_port=SERVER_PORT,
     server_path=SERVER_PATH,

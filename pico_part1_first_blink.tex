@@ -28,63 +28,47 @@
 \small
 
 \section*{What Students Do}
-Students unbox a Raspberry Pi Pico 2 W, connect it to a MacBook Air, install the software tools, flash MicroPython onto the board, clone the class repository, type a short Python program by hand, and run that program so the onboard LED blinks.
+Students unbox a Raspberry Pi Pico 2 W, connect it to a MacBook Air, install the software tools, flash MicroPython onto the board, wire a simple breadboard with an LED and button, clone the project repository, type a short Python program by hand, and run that program so the LED on \texttt{GP15} (physical pin 20, breadboard row 42) blinks.
 
 \section*{What You Need}
 \begin{itemize}
     \item 1 Raspberry Pi Pico 2 W
     \item 1 MacBook Air
+    \item 1 breadboard
+    \item 1 LED
+    \item 1 220$\Omega$ resistor
+    \item 1 pushbutton
+    \item 4 jumper wires
+    \item 1 regulated 5V power supply for the breadboard rails
     \item 1 \textbf{data-capable} USB cable: USB-C to micro-USB is best for MacBook Airs
     \item Internet access
-    \item A Git repository URL from the teacher
+    \item Project repository: \url{https://github.com/slug23/starleap-pico.git}
 \end{itemize}
 
 \textbf{Important:} a charge-only cable will power the Pico but will not let the laptop see it. If the Pico powers on but never appears in Finder or VS Code, suspect the cable first.
 
-\section*{Teacher Prep Before Class}
-\begin{itemize}
-    \item For this lesson, the firmware file in use is \texttt{RPI\_PICO2\_W-20260406-v1.28.0.uf2}.
-    \item Replace every \texttt{YOUR\_REPO\_URL\_HERE} placeholder in this handout before printing.
-    \item If school Wi-Fi is slow, pre-download VS Code, the MicroPython UF2 file, and Python on each laptop.
-    \item Keep at least a few known-good USB data cables ready for swaps.
-    \item If some laptops already have VS Code or Git, students should still do the \textbf{check} steps below so everyone follows the same path.
-\end{itemize}
-
 \section*{Big Picture}
-Today we are doing four jobs:
+Today we are doing five jobs:
 \begin{enumerate}
     \item Set up the MacBook Air for Pico work
+    \item Place the Pico on the breadboard and wire the circuit
     \item Put MicroPython onto the Pico
     \item Open the class project in VS Code
     \item Type and run a blink program
 \end{enumerate}
 
-\section*{Step 1: Unbox and Identify the Board}
+\section*{Step 1: Install Visual Studio Code on macOS}
 \begin{enumerate}
-    \item Remove the Pico 2 W from the package.
-    \item Find the \textbf{micro-USB port}.
-    \item Find the small white \textbf{BOOTSEL} button.
-    \item Read the board label. It should say \textbf{Pico 2 W}.
-    \item Keep the board on the antistatic foam or on the table for now. Do not set it on metal.
-\end{enumerate}
-
-\textbf{Why this matters:} today every student should use the \textbf{Pico 2 W} MicroPython page and the same UF2 file.
-
-\section*{Step 2: Install Visual Studio Code on macOS}
-\begin{enumerate}
-    \item Open Safari.
+    \item Check whether VS Code is already installed. Look in \textbf{Applications} or use Spotlight search.
+    \item If VS Code is not installed, open a web browser like Safari or Chrome.
     \item Go to \url{https://code.visualstudio.com/download}
     \item Download the macOS version of VS Code. On Apple silicon MacBook Airs, the \textbf{Universal} build is fine.
     \item Open the downloaded \texttt{.dmg} file.
     \item Drag \textbf{Visual Studio Code.app} into the \textbf{Applications} folder.
     \item Open VS Code from the Applications folder.
-    \item In VS Code, open the Command Palette with \textbf{Cmd+Shift+P}.
-    \item Type \texttt{shell command} and click \textbf{Shell Command: Install `code` command in PATH}.
 \end{enumerate}
 
-\textbf{Why do that last step?} It lets you open a folder in VS Code from Terminal with the command \texttt{code .}
-
-\section*{Step 3: Install Git on the Mac}
+\section*{Step 2: Install Git on the Mac}
 Open \textbf{Terminal} and type:
 
 \begin{verbatim}
@@ -101,14 +85,16 @@ git --version
 xcode-select --install
 \end{verbatim}
 
+\textbf{Note:} this installs Apple's command line tools, which include Git. It is much smaller than the full Xcode app.
+
 After the install finishes, check again:
 
 \begin{verbatim}
 git --version
 \end{verbatim}
 
-\section*{Step 4: Check Python for the VS Code Pico Extension}
-The MicroPico extension works best when the Mac already has Python 3.10 or newer.
+\section*{Step 3: Check Python on the Mac}
+You will install the VS Code extensions later in Step 10. Before that, make sure the Mac already has Python 3.10 or newer, because MicroPico works best when Python is already installed.
 
 In Terminal, type:
 
@@ -121,65 +107,89 @@ python3 --version
     \item If \texttt{python3} is missing, or the version is older than 3.10, go to \url{https://www.python.org/downloads/macos/} and install the current macOS installer.
 \end{itemize}
 
-\section*{Step 5: Download the MicroPython File for Pico 2 W}
+\section*{Step 4: Download the MicroPython File for Pico 2 W}
 Go to:
 
 \begin{verbatim}
 https://micropython.org/download/RPI_PICO2_W/
 \end{verbatim}
 
-For this class, download this exact file and leave it in \textbf{Downloads}:
+Scroll down to the \textbf{Releases} section and download the first file listed there. For this class, it should be this exact file, and you should leave it in \textbf{Downloads}:
 
 \begin{verbatim}
 RPI_PICO2_W-20260406-v1.28.0.uf2
 \end{verbatim}
 
-\textbf{Important:} if the page also shows a separate \textbf{RISC-V CPU mode} firmware section, ignore that for Lesson 1. Use the standard UF2 file listed above.
-
 \textbf{Vocabulary note:} the file you are downloading is the \textbf{MicroPython firmware} for the Pico. People sometimes casually say ``image'' or ``firmware file.'' In this lesson we will use the correct term \textbf{firmware}.
 
-\section*{Step 6: Flash MicroPython onto the Pico}
+\section*{Step 5: Unbox and Place the Board}
 \begin{enumerate}
-    \item Unplug the Pico 2 W if it is already connected.
+    \item Remove the Pico 2 W from the package.
+    \item Find the \textbf{micro-USB port}.
+    \item Find the small white \textbf{BOOTSEL} button.
+    \item Read the board label. It should say \textbf{Pico 2 W}.
+    \item Hold the Pico so the \textbf{micro-USB port is on your left}, near the end of the breadboard.
+    \item Place the Pico across the center gap of the breadboard so the labeled pin \texttt{1} lands in row 61. The labeled pins \texttt{2} and \texttt{39} should both line up with row 60.
+\end{enumerate}
+
+\section*{Step 6: Quick Wiring Setup}
+\begin{enumerate}
+    \item Power the breadboard rails from your external regulated 5V supply.
+    \item Connect physical pin 39 (\texttt{VSYS}) to the breadboard \texttt{+5V} rail.
+    \item Connect physical pin 38 (breadboard row 59) to the breadboard \texttt{GND} rail.
+    \item Connect \texttt{GP15} (physical pin 20, breadboard row 42) to the long leg of the LED.
+    \item Connect the short leg of the LED to one side of the 220$\Omega$ resistor.
+    \item Connect the other side of the resistor to the \texttt{GND} rail.
+    \item Add a pushbutton with one side connected to \texttt{GP14} (physical pin 19, breadboard row 43) and the other side connected to \texttt{GND}.
+\end{enumerate}
+
+\textbf{LED polarity note:} the long leg is the positive leg. The short leg goes toward the resistor and \texttt{GND}.
+
+\textbf{Power note:} leave the breadboard's external 5V supply turned off for now. The USB cable will power the Pico during the first firmware flash, and after that your breadboard supply can power the Pico through \texttt{VSYS}.
+
+\textbf{Button note:} this first blink program uses the LED on \texttt{GP15} (physical pin 20, breadboard row 42). The button on \texttt{GP14} (physical pin 19, breadboard row 43) is wired now so the board is ready for the next lesson.
+
+\section*{Step 7: Flash MicroPython onto the Pico}
+\begin{enumerate}
+    \item Make sure the breadboard's external 5V supply is turned off.
+    \item Unplug the Pico 2 W from USB if it is already connected.
     \item Hold down the \textbf{BOOTSEL} button.
     \item While still holding BOOTSEL, plug the Pico into the MacBook Air with the USB cable.
+    \item If the Mac asks whether to allow an accessory named \textbf{RP2350} to connect, click \textbf{Allow}.
     \item Release BOOTSEL.
-    \item A new drive should appear in Finder. It is usually named \textbf{RPI-RP2}.
+    \item A new drive should appear in Finder. It is usually named \textbf{RP 2350}.
     \item Drag the downloaded \texttt{.uf2} file onto that drive.
     \item Wait a few seconds.
-    \item The \textbf{RPI-RP2} drive should disappear by itself. That means the Pico 2 W rebooted into MicroPython.
+    \item The \textbf{RP 2350} drive should disappear by itself. That means the Pico 2 W rebooted into MicroPython.
+    \item After the reboot, if the Mac asks whether to allow the MicroPython board to connect, click \textbf{Allow}.
 \end{enumerate}
+
+\textbf{Power note:} after the flash finishes, you can turn on the breadboard's external 5V supply so it powers the Pico through \texttt{VSYS} for the rest of the lesson.
 
 \textbf{If the drive does not appear:} unplug the board, hold BOOTSEL again, and try again. If it still does not appear, swap the cable.
 
-\section*{Step 7: Clone the Class Repository}
+\section*{Step 8: Clone the Project Repository}
 We are going to make a project folder on the Desktop so it is easy to find.
 
 In Terminal, type:
 
 \begin{verbatim}
 cd ~/Desktop
-git clone YOUR_REPO_URL_HERE
+git clone https://github.com/slug23/starleap-pico.git
 \end{verbatim}
 
 When the clone finishes, go into that folder:
 
 \begin{verbatim}
-cd YOUR_REPO_FOLDER_NAME
+cd starleap-pico
 \end{verbatim}
 
-\textbf{Teacher note:} replace \texttt{YOUR\_REPO\_URL\_HERE} and \texttt{YOUR\_REPO\_FOLDER\_NAME} before handing this out. If you leave the real URL in place, students can usually skip the second line because Git names the folder automatically.
+\textbf{Note:} Git will create the folder name \texttt{starleap-pico} automatically from this repository URL.
 
-\section*{Step 8: Open the Project in VS Code}
-In Terminal, while you are inside the cloned folder, type:
+\section*{Step 9: Open the Project in VS Code}
+Open VS Code, choose \textbf{File > Open Folder}, and select the \texttt{starleap-pico} folder you just cloned.
 
-\begin{verbatim}
-code .
-\end{verbatim}
-
-If \texttt{code} is not recognized, open VS Code normally, choose \textbf{File > Open Folder}, and select the folder you just cloned.
-
-\section*{Step 9: Install the VS Code Extensions}
+\section*{Step 10: Install the VS Code Extensions}
 In VS Code:
 \begin{enumerate}
     \item Click the \textbf{Extensions} icon on the left side, or press \textbf{Cmd+Shift+X}.
@@ -190,7 +200,7 @@ In VS Code:
 
 \textbf{Note:} MicroPico may also prompt you to install recommended extensions when you initialize the project. If it does, allow those installs.
 
-\section*{Step 10: Initialize the Project for MicroPico}
+\section*{Step 11: Initialize the Project for MicroPico}
 \begin{enumerate}
     \item Open the Command Palette with \textbf{Cmd+Shift+P}.
     \item Type \texttt{MicroPico: Initialize MicroPico project}
@@ -200,7 +210,7 @@ In VS Code:
 
 This step adds project settings and autocomplete support for MicroPython.
 
-\section*{Step 11: Create and Type the Blink Program}
+\section*{Step 12: Create and Type the Blink Program}
 In the project folder, create a new file named \texttt{blink.py}.
 
 Type this program exactly:
@@ -209,23 +219,23 @@ Type this program exactly:
 from machine import Pin
 from utime import sleep
 
-pin = Pin("LED", Pin.OUT)
+led = Pin(15, Pin.OUT)
 
-print("LED starts flashing...")
+print("LED on GP15 (physical pin 20, breadboard row 42) starts flashing...")
 while True:
     try:
-        pin.value(not pin.value())
+        led.value(not led.value())
         sleep(1)
     except KeyboardInterrupt:
         break
 
-pin.off()
+led.off()
 print("Finished.")
 \end{verbatim}
 
 \textbf{Important:} students should type this by hand in Lesson 1. Do not paste it in.
 
-\section*{Step 12: Run the Program on the Pico}
+\section*{Step 13: Run the Program on the Pico}
 \begin{enumerate}
     \item Make sure the Pico 2 W is still plugged into the Mac.
     \item Click inside the \texttt{blink.py} tab in VS Code.
@@ -236,11 +246,11 @@ print("Finished.")
 
 If everything is set up correctly:
 \begin{itemize}
-    \item the onboard LED should start blinking once per second
-    \item the MicroPico terminal should show \texttt{LED starts flashing...}
+    \item the LED on \texttt{GP15} (physical pin 20, breadboard row 42) should start blinking once per second
+    \item the MicroPico terminal should show a message that the LED on \texttt{GP15} (physical pin 20, breadboard row 42) started flashing
 \end{itemize}
 
-\section*{Step 13: Stop the Program}
+\section*{Step 14: Stop the Program}
 Because the program runs forever, you need a way to stop it.
 
 \begin{enumerate}
@@ -255,30 +265,23 @@ The LED should stop blinking, and the terminal should print \texttt{Finished.}
 \begin{itemize}
     \item \texttt{from machine import Pin} gives Python control of the Pico 2 W pins.
     \item \texttt{from utime import sleep} lets the program wait between LED changes.
-    \item \texttt{Pin("LED", Pin.OUT)} selects the onboard LED as an output.
-    \item \texttt{pin.value(not pin.value())} flips the LED from off to on or on to off.
+    \item \texttt{Pin(15, Pin.OUT)} selects the LED on \texttt{GP15} (physical pin 20, breadboard row 42) as an output.
+    \item \texttt{led.value(not led.value())} flips the LED from off to on or on to off.
     \item \texttt{sleep(1)} waits 1 second each loop.
     \item \texttt{while True:} means ``keep going forever'' until we stop it.
 \end{itemize}
 
 \section*{Troubleshooting}
 \begin{itemize}
-    \item \textbf{No RPI-RP2 drive appears:} the board is not in BOOTSEL mode, or the USB cable is charge-only.
+    \item \textbf{No RP 2350 drive appears:} the board is not in BOOTSEL mode, or the USB cable is charge-only.
     \item \textbf{VS Code cannot find the Pico:} unplug and reconnect the board after flashing, then try the MicroPico run command again.
-    \item \textbf{Git command not found:} run \texttt{xcode-select --install}, finish the install, and then run \texttt{git --version} again.
+    \item \textbf{Git command not found:} run \texttt{xcode-select --install}, finish the command line tools install, and then run \texttt{git --version} again.
     \item \textbf{Python missing or too old:} install current Python 3 from \url{python.org/downloads/macos/}.
     \item \textbf{MicroPico command missing:} make sure the extension is actually installed and enabled.
     \item \textbf{The LED line throws an error:} make sure you flashed \texttt{RPI\_PICO2\_W-20260406-v1.28.0.uf2} and not a Pico, Pico W, or Pico 2 non-W firmware file.
+    \item \textbf{The external LED does not blink:} check that the LED long leg goes to \texttt{GP15} (physical pin 20, breadboard row 42), the short leg goes through the 220$\Omega$ resistor to \texttt{GND}, and the LED is not backwards.
     \item \textbf{The board still does not respond after flashing:} re-enter BOOTSEL mode and re-copy the UF2 file, then unplug and reconnect the board.
-    \item \textbf{You accidentally used the RISC-V firmware build:} re-flash the standard Pico 2 W UF2 from Step 5.
-\end{itemize}
-
-\section*{Exit Check}
-\begin{itemize}
-    \item What does the BOOTSEL button let you do?
-    \item Why do you need the correct UF2 file for the \textbf{Pico 2 W}?
-    \item What does \texttt{while True:} mean?
-    \item What line of code actually changes the LED state?
+    \item \textbf{You accidentally used the RISC-V firmware build:} re-flash the standard Pico 2 W UF2 from Step 4.
 \end{itemize}
 
 \section*{Links Used in This Lesson}

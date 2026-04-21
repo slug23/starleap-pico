@@ -23,6 +23,7 @@ let knownBuzzKeys = new Set();
 const gamePhase = ref("idle");
 const gameCountdownStartMs = ref(null);
 const gameReleaseAtMs = ref(null);
+const gameLiveAtMs = ref(null);
 const gameWinnerPlayerId = ref("");
 const gameArmingLive = ref(false);
 const disqualifiedPlayerIds = ref([]);
@@ -89,13 +90,20 @@ const activeBuzzes = computed(() => {
   }
 
   if (gamePhase.value === "live" || gamePhase.value === "won") {
-    return eligibleBuzzes.value.length ? [eligibleBuzzes.value[0]] : [];
+    return eligibleBuzzes.value;
   }
 
   return buzzes.value;
 });
 
 const firstBuzzer = computed(() => activeBuzzes.value[0] ?? null);
+const gameWinnerLabel = computed(() => {
+  if (firstBuzzer.value) {
+    return displayPlayerLabel(firstBuzzer.value);
+  }
+
+  return gameWinnerPlayerId.value || "";
+});
 
 const sortedBuzzerDevices = computed(() =>
   [...buzzerDevices.value].sort((left, right) => {
@@ -463,22 +471,38 @@ function formatTime(timestamp) {
   }).format(new Date(timestamp));
 }
 
+function formatDeltaMs(deltaMs) {
+  return Math.max(0, Number(deltaMs) || 0).toFixed(3);
+}
+
 function formatDeltaFromFirst(timestamp) {
   if (!firstBuzzer.value) {
     return "";
   }
 
-  const deltaMs = Number(timestamp) - Number(firstBuzzer.value.received_at_ms);
+  return formatDeltaMs(Number(timestamp) - Number(firstBuzzer.value.received_at_ms));
+}
 
-  if (deltaMs <= 0) {
-    return "T0";
+function formatDeltaFromLive(timestamp) {
+  if (gameLiveAtMs.value === null) {
+    return "---.---";
   }
 
-  return `T+${deltaMs}ms`;
+  return formatDeltaMs(Number(timestamp) - Number(gameLiveAtMs.value));
 }
 
 function compareNodeId(left, right) {
   return collator.compare(left.player_id ?? "", right.player_id ?? "");
+}
+
+function displayPlayerLabel(entity) {
+  const playerName = String(entity?.player_name ?? "").trim();
+
+  if (playerName) {
+    return playerName;
+  }
+
+  return entity?.player_id ?? "player-unknown";
 }
 
 function isDisqualified(device) {
@@ -653,6 +677,7 @@ function clearLocalGameState() {
   gamePhase.value = "idle";
   gameCountdownStartMs.value = null;
   gameReleaseAtMs.value = null;
+  gameLiveAtMs.value = null;
   gameWinnerPlayerId.value = "";
   gameArmingLive.value = false;
   disqualifiedPlayerIds.value = [];
@@ -774,6 +799,7 @@ async function armLiveWindow() {
 
   if (data) {
     buzzes.value = data.buzzes ?? [];
+    gameLiveAtMs.value = Date.now();
     gamePhase.value = "live";
     playBongSound();
   }
@@ -798,6 +824,7 @@ async function startGame() {
   const startedAt = Date.now();
   gameCountdownStartMs.value = startedAt;
   gameReleaseAtMs.value = startedAt + 6000 + 5000 + Math.floor(Math.random() * 5001);
+  gameLiveAtMs.value = null;
   gameWinnerPlayerId.value = "";
   gamePhase.value = "countdown";
 }
@@ -873,68 +900,66 @@ onUnmounted(() => {
 
 <template>
   <main class="app-shell">
-    <section class="hero">
-      <p class="eyebrow">{{ heroCopy.eyebrow }}</p>
-      <h1>{{ heroCopy.title }}</h1>
-      <p class="subtitle">
-        {{ heroCopy.subtitle }}
-      </p>
-
-      <div class="hero-actions">
-        <template v-if="activeMode === 'buzzer'">
-          <button class="primary-button" :disabled="resetting" @click="resetGame">
-            {{ resetting ? "PURGING..." : "PURGE ROUND" }}
-          </button>
-          <button
-            class="primary-button primary-button-go"
-            :disabled="resetting || gameIsRunning || gameArmingLive"
-            @click="startGame"
-          >
-            {{ gameIsRunning || gameArmingLive ? "RUNNING" : "GO" }}
-          </button>
-          <span class="backend-pill">{{ buzzerOnlineCount }} LINKED</span>
-        </template>
-
-        <template v-else>
-          <span class="backend-pill">{{ sensorOnlineCount }} STREAMING</span>
-          <span class="backend-pill">WINDOW {{ lightHistoryLimit }} SAMPLES</span>
-        </template>
-
-        <span class="backend-pill">UPLINK {{ apiBase }}</span>
-      </div>
-
-      <div class="mode-tabs" role="tablist" aria-label="Hub modes">
-        <button
-          v-for="tab in modeTabs"
-          :key="tab.id"
-          :class="['mode-tab', activeMode === tab.id ? 'mode-tab-active' : '']"
-          :aria-selected="activeMode === tab.id"
-          @click="activeMode = tab.id"
-        >
-          <span>{{ tab.label }}</span>
-          <span class="mode-tab-count">{{ tab.count }}</span>
-        </button>
-      </div>
-    </section>
-
-    <section v-if="error" class="panel error-panel">
-      <strong>ALERT</strong> {{ error }}
-    </section>
-
     <template v-if="activeMode === 'buzzer'">
-      <section class="dashboard-grid">
-        <div class="dashboard-stack">
-          <article class="panel spotlight">
-            <p class="panel-label">PRIMARY SIGNAL</p>
-            <div v-if="firstBuzzer" class="winner-card">
-              <div class="winner-order">#{{ firstBuzzer.order }}</div>
-              <div>
-                <h2>{{ firstBuzzer.player_id }}</h2>
-                <p>{{ formatTime(firstBuzzer.received_at_ms) }}</p>
+      <section class="dashboard-grid dashboard-grid-buzzer">
+        <div class="dashboard-stack buzzer-left-stack">
+          <section class="hero">
+            <p class="eyebrow">{{ heroCopy.eyebrow }}</p>
+            <h1>{{ heroCopy.title }}</h1>
+
+            <div class="mode-tabs" role="tablist" aria-label="Hub modes">
+              <button
+                v-for="tab in modeTabs"
+                :key="tab.id"
+                :class="['mode-tab', activeMode === tab.id ? 'mode-tab-active' : '']"
+                :aria-selected="activeMode === tab.id"
+                @click="activeMode = tab.id"
+              >
+                <span>{{ tab.label }}</span>
+                <span class="mode-tab-count">{{ tab.count }}</span>
+              </button>
+            </div>
+          </section>
+
+          <section v-if="error" class="panel error-panel error-panel-inline">
+            <strong>ALERT</strong> {{ error }}
+          </section>
+
+          <article class="panel game-panel buzzer-game-panel" :class="gamePanelClass">
+            <div class="panel-header">
+              <p class="panel-label">GAME CORE</p>
+              <span class="queue-count">{{ gameStatus }}</span>
+            </div>
+
+            <div class="display-core">
+              <div class="segment-display">
+                <div v-for="(char, index) in gameDisplayChars" :key="`${char}-${index}`" class="segment-digit">
+                  <span
+                    v-for="segment in ['a', 'b', 'c', 'd', 'e', 'f', 'g']"
+                    :key="segment"
+                    :class="['segment', `segment-${segment}`, isSegmentOn(char, segment) ? 'segment-on' : '']"
+                  ></span>
+                </div>
+              </div>
+
+              <div class="game-status-row">
+                <span class="game-status-chip">{{ gameStatus }}</span>
+                <span v-if="gamePhase === 'won' && gameWinnerLabel" class="game-status-chip">
+                  PLAYER {{ gameWinnerLabel }}
+                </span>
               </div>
             </div>
-            <div v-else class="empty-state">
-              <p>{{ loading ? "AWAITING UPLINK..." : "AWAITING FIRST SIGNAL." }}</p>
+            <div class="game-controls">
+              <button class="primary-button" :disabled="resetting" @click="resetGame">
+                {{ resetting ? "RESETTING..." : "RESET" }}
+              </button>
+              <button
+                class="primary-button primary-button-go"
+                :disabled="resetting || gameIsRunning || gameArmingLive"
+                @click="startGame"
+              >
+                {{ gameIsRunning || gameArmingLive ? "RUNNING" : "GO" }}
+              </button>
             </div>
           </article>
 
@@ -952,7 +977,7 @@ onUnmounted(() => {
               >
                 <div :class="['button-led', triggerStateClass(device)]"></div>
                 <div class="device-copy">
-                  <p class="queue-name">{{ device.player_id }}</p>
+                  <p class="queue-name">{{ displayPlayerLabel(device) }}</p>
                   <p class="queue-meta">
                     {{ triggerStateLabel(device) }}
                     <span v-if="device.button_pin !== null"> · GP{{ device.button_pin }}</span>
@@ -963,6 +988,20 @@ onUnmounted(() => {
 
             <div v-else class="empty-state compact-empty">
               <p>NO LIVE TRIGGER CHANNELS.</p>
+            </div>
+          </article>
+
+          <article class="panel spotlight">
+            <p class="panel-label">PRIMARY SIGNAL</p>
+            <div v-if="firstBuzzer" class="winner-card">
+              <div class="winner-order">#{{ firstBuzzer.order }}</div>
+              <div>
+                <h2>{{ displayPlayerLabel(firstBuzzer) }}</h2>
+                <p>{{ formatTime(firstBuzzer.received_at_ms) }}</p>
+              </div>
+            </div>
+            <div v-else class="empty-state">
+              <p>{{ loading ? "AWAITING UPLINK..." : "AWAITING FIRST SIGNAL." }}</p>
             </div>
           </article>
 
@@ -980,7 +1019,7 @@ onUnmounted(() => {
               >
                 <div class="device-copy">
                   <div class="device-title-row">
-                    <p class="queue-name">{{ device.player_id }}</p>
+                    <p class="queue-name">{{ displayPlayerLabel(device) }}</p>
                     <span :class="['status-pill', isOnline(device) ? 'status-online' : 'status-quiet']">
                       {{ isOnline(device) ? "Online" : "Quiet" }}
                     </span>
@@ -1003,63 +1042,71 @@ onUnmounted(() => {
           </article>
         </div>
 
-        <div class="dashboard-stack dashboard-stack-right">
-          <article class="panel game-panel" :class="gamePanelClass">
-            <div class="panel-header">
-              <p class="panel-label">GAME CORE</p>
-              <span class="queue-count">{{ gameStatus }}</span>
-            </div>
+        <article class="panel queue-panel buzzer-priority-panel">
+          <div class="panel-header">
+            <p class="panel-label">PRIORITY STACK</p>
+            <span class="queue-count">{{ priorityCount }} RANKED</span>
+          </div>
 
-            <div class="display-core">
-              <div class="segment-display">
-                <div v-for="(char, index) in gameDisplayChars" :key="`${char}-${index}`" class="segment-digit">
-                  <span
-                    v-for="segment in ['a', 'b', 'c', 'd', 'e', 'f', 'g']"
-                    :key="segment"
-                    :class="['segment', `segment-${segment}`, isSegmentOn(char, segment) ? 'segment-on' : '']"
-                  ></span>
-                </div>
-              </div>
-
-              <div class="game-status-row">
-                <span class="game-status-chip">{{ gameStatus }}</span>
-                <span v-if="gamePhase === 'won' && gameWinnerPlayerId" class="game-status-chip">
-                  NODE {{ gameWinnerPlayerId }}
-                </span>
-              </div>
-            </div>
-          </article>
-
-          <article class="panel queue-panel">
-            <div class="panel-header">
-              <p class="panel-label">PRIORITY STACK</p>
-              <span class="queue-count">{{ priorityCount }} LOCKED</span>
-            </div>
-
-            <ol v-if="activeBuzzes.length" class="queue-list">
-              <li v-for="entry in activeBuzzes" :key="`${entry.player_id}-${entry.order}`" class="queue-item">
-                <div>
-                  <p class="queue-name">{{ entry.player_id }}</p>
-                  <p class="queue-meta">
-                    {{ formatTime(entry.received_at_ms) }}
-                    <span> · {{ formatDeltaFromFirst(entry.received_at_ms) }}</span>
-                    <span v-if="entry.mac_address"> · MAC {{ entry.mac_address }}</span>
-                    <span v-if="entry.device_id"> · UID {{ entry.device_id }}</span>
-                  </p>
-                </div>
+          <ol v-if="activeBuzzes.length" class="queue-list">
+            <li v-for="entry in activeBuzzes" :key="`${entry.player_id}-${entry.order}`" class="queue-item">
+              <div class="queue-item-body">
                 <div class="queue-order">#{{ entry.order }}</div>
-              </li>
-            </ol>
+                <div class="queue-player-row">
+                  <p class="queue-delta">
+                    <span class="queue-delta-value">{{ formatDeltaFromFirst(entry.received_at_ms) }}</span>
+                    <span class="queue-delta-unit">ms</span>
+                  </p>
+                  <p class="queue-live-delta">
+                    <span class="queue-live-label">RT</span>
+                    <span class="queue-live-value">{{ formatDeltaFromLive(entry.received_at_ms) }}</span>
+                    <span class="queue-live-unit">ms</span>
+                  </p>
+                  <p class="queue-name">{{ displayPlayerLabel(entry) }}</p>
+                </div>
+              </div>
+            </li>
+          </ol>
 
-            <div v-else class="empty-state">
-              <p>SIGNAL STACK EMPTY.</p>
-            </div>
-          </article>
-        </div>
+          <div v-else class="empty-state">
+            <p>SIGNAL STACK EMPTY.</p>
+          </div>
+        </article>
       </section>
     </template>
 
     <template v-else>
+      <section class="hero">
+        <p class="eyebrow">{{ heroCopy.eyebrow }}</p>
+        <h1>{{ heroCopy.title }}</h1>
+        <p class="subtitle">
+          {{ heroCopy.subtitle }}
+        </p>
+
+        <div class="hero-actions">
+          <span class="backend-pill">{{ sensorOnlineCount }} STREAMING</span>
+          <span class="backend-pill">WINDOW {{ lightHistoryLimit }} SAMPLES</span>
+          <span class="backend-pill">UPLINK {{ apiBase }}</span>
+        </div>
+
+        <div class="mode-tabs" role="tablist" aria-label="Hub modes">
+          <button
+            v-for="tab in modeTabs"
+            :key="tab.id"
+            :class="['mode-tab', activeMode === tab.id ? 'mode-tab-active' : '']"
+            :aria-selected="activeMode === tab.id"
+            @click="activeMode = tab.id"
+          >
+            <span>{{ tab.label }}</span>
+            <span class="mode-tab-count">{{ tab.count }}</span>
+          </button>
+        </div>
+      </section>
+
+      <section v-if="error" class="panel error-panel">
+        <strong>ALERT</strong> {{ error }}
+      </section>
+
       <section class="dashboard-grid dashboard-grid-light">
         <div class="dashboard-stack">
           <article class="panel spotlight sensor-spotlight">
@@ -1075,12 +1122,12 @@ onUnmounted(() => {
               </div>
               <div class="summary-stat">
                 <p class="summary-label">BRIGHTEST</p>
-                <p class="summary-value">{{ brightestSensor ? brightestSensor.player_id : "--" }}</p>
+                <p class="summary-value">{{ brightestSensor ? displayPlayerLabel(brightestSensor) : "--" }}</p>
                 <p class="summary-meta">{{ brightestSensor ? formatPercent(brightestSensor.latestPercent) : "NO DATA" }}</p>
               </div>
               <div class="summary-stat">
                 <p class="summary-label">DARKEST</p>
-                <p class="summary-value">{{ darkestSensor ? darkestSensor.player_id : "--" }}</p>
+                <p class="summary-value">{{ darkestSensor ? displayPlayerLabel(darkestSensor) : "--" }}</p>
                 <p class="summary-meta">{{ darkestSensor ? formatPercent(darkestSensor.latestPercent) : "NO DATA" }}</p>
               </div>
               <div class="summary-stat">
@@ -1109,7 +1156,7 @@ onUnmounted(() => {
               >
                 <div class="device-copy">
                   <div class="device-title-row">
-                    <p class="queue-name">{{ panel.player_id }}</p>
+                    <p class="queue-name">{{ displayPlayerLabel(panel) }}</p>
                     <span :class="['status-pill', isOnline(panel) ? 'status-online' : 'status-quiet']">
                       {{ isOnline(panel) ? "Online" : "Quiet" }}
                     </span>
@@ -1147,7 +1194,7 @@ onUnmounted(() => {
               >
                 <div class="sensor-card-top">
                   <div>
-                    <p class="queue-name">{{ panel.player_id }}</p>
+                    <p class="queue-name">{{ displayPlayerLabel(panel) }}</p>
                     <p class="queue-meta">
                       {{ panel.spanLabel }}
                       <span v-if="panel.light_pin !== null"> · GP{{ panel.light_pin }}</span>

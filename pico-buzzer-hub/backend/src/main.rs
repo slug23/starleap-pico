@@ -31,6 +31,7 @@ struct HubState {
 struct BuzzEntry {
     order: u64,
     player_id: String,
+    player_name: Option<String>,
     device_id: Option<String>,
     mac_address: Option<String>,
     button_pin: Option<u8>,
@@ -40,6 +41,7 @@ struct BuzzEntry {
 #[derive(Debug, Clone, Serialize)]
 struct LightReading {
     player_id: String,
+    player_name: Option<String>,
     device_id: Option<String>,
     mac_address: Option<String>,
     light_pin: Option<u8>,
@@ -50,8 +52,10 @@ struct LightReading {
 
 #[derive(Debug, Deserialize)]
 struct DeviceRequest {
+    #[serde(default)]
+    player_name: Option<String>,
     #[serde(default, rename = "player_id", alias = "student_id")]
-    _reported_player_id: Option<String>,
+    reported_player_id: Option<String>,
     app_kind: Option<String>,
     device_id: Option<String>,
     mac_address: Option<String>,
@@ -66,6 +70,7 @@ struct DeviceRequest {
 #[derive(Debug, Clone, Serialize)]
 struct DevicePresence {
     player_id: String,
+    player_name: Option<String>,
     app_kind: String,
     device_id: Option<String>,
     mac_address: Option<String>,
@@ -170,6 +175,7 @@ async fn post_buzz(
     Json(payload): Json<DeviceRequest>,
 ) -> impl IntoResponse {
     let player_id = resolve_player_id(&payload);
+    let player_name = resolve_player_name(&payload);
     let app_kind = resolve_app_kind(&payload, "buzzer");
 
     let mut guard = state
@@ -178,7 +184,14 @@ async fn post_buzz(
         .expect("hub state lock should not be poisoned");
 
     let seen_at_ms = now_ms();
-    upsert_device(&mut guard, &payload, &player_id, &app_kind, seen_at_ms);
+    upsert_device(
+        &mut guard,
+        &payload,
+        &player_id,
+        player_name.as_deref(),
+        &app_kind,
+        seen_at_ms,
+    );
 
     if guard
         .buzzes
@@ -200,6 +213,7 @@ async fn post_buzz(
     let entry = BuzzEntry {
         order: guard.next_order,
         player_id: player_id.to_string(),
+        player_name: player_name.clone(),
         device_id: payload.device_id,
         mac_address: payload.mac_address,
         button_pin: payload.button_pin,
@@ -246,6 +260,7 @@ async fn post_light_reading(
     };
 
     let player_id = resolve_player_id(&payload);
+    let player_name = resolve_player_name(&payload);
     let app_kind = resolve_app_kind(&payload, "light-sensor");
     let seen_at_ms = now_ms();
 
@@ -254,11 +269,19 @@ async fn post_light_reading(
         .lock()
         .expect("hub state lock should not be poisoned");
 
-    upsert_device(&mut guard, &payload, &player_id, &app_kind, seen_at_ms);
+    upsert_device(
+        &mut guard,
+        &payload,
+        &player_id,
+        player_name.as_deref(),
+        &app_kind,
+        seen_at_ms,
+    );
     push_light_reading(
         &mut guard,
         LightReading {
             player_id,
+            player_name,
             device_id: payload.device_id,
             mac_address: payload.mac_address,
             light_pin: payload.light_pin,
@@ -282,6 +305,7 @@ async fn post_check_in(
     Json(payload): Json<DeviceRequest>,
 ) -> impl IntoResponse {
     let player_id = resolve_player_id(&payload);
+    let player_name = resolve_player_name(&payload);
     let app_kind = resolve_app_kind(&payload, "buzzer");
 
     let mut guard = state
@@ -289,7 +313,14 @@ async fn post_check_in(
         .lock()
         .expect("hub state lock should not be poisoned");
 
-    upsert_device(&mut guard, &payload, &player_id, &app_kind, now_ms());
+    upsert_device(
+        &mut guard,
+        &payload,
+        &player_id,
+        player_name.as_deref(),
+        &app_kind,
+        now_ms(),
+    );
 
     (
         StatusCode::OK,
@@ -372,6 +403,7 @@ fn upsert_device(
     state: &mut HubState,
     payload: &DeviceRequest,
     player_id: &str,
+    player_name: Option<&str>,
     app_kind: &str,
     seen_at_ms: u128,
 ) {
@@ -381,6 +413,7 @@ fn upsert_device(
         .find(|device| same_device(device, payload, player_id))
     {
         device.player_id = player_id.to_string();
+        device.player_name = player_name.map(str::to_string);
         device.app_kind = app_kind.to_string();
         device.last_seen_ms = seen_at_ms;
 
@@ -421,6 +454,7 @@ fn upsert_device(
 
     state.devices.push(DevicePresence {
         player_id: player_id.to_string(),
+        player_name: player_name.map(str::to_string),
         app_kind: app_kind.to_string(),
         device_id: payload.device_id.clone(),
         mac_address: payload.mac_address.clone(),
@@ -508,6 +542,16 @@ fn resolve_player_id(payload: &DeviceRequest) -> String {
     }
 
     "player-unknown".to_string()
+}
+
+fn resolve_player_name(payload: &DeviceRequest) -> Option<String> {
+    payload
+        .player_name
+        .as_deref()
+        .or(payload.reported_player_id.as_deref())
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .map(str::to_string)
 }
 
 fn resolve_app_kind(payload: &DeviceRequest, default_kind: &str) -> String {
