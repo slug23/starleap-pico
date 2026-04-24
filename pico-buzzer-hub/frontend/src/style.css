@@ -788,6 +788,16 @@ select {
   text-transform: uppercase;
 }
 
+.queue-method-stack {
+  display: grid;
+  gap: 2px;
+  align-self: center;
+}
+
+.queue-client-delta {
+  color: var(--cyan);
+}
+
 .queue-live-label {
   color: var(--muted);
 }
@@ -800,6 +810,19 @@ select {
 
 .queue-live-unit {
   white-space: nowrap;
+}
+
+.queue-method-diff {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.queue-method-warning {
+  color: #fff1cb;
 }
 
 .queue-player-row {
@@ -946,6 +969,18 @@ select {
   background: rgba(104, 214, 137, 0.18);
   border: 1px solid rgba(104, 214, 137, 0.2);
   color: var(--green);
+}
+
+.status-firmware-ok {
+  background: rgba(115, 242, 255, 0.12);
+  border: 1px solid rgba(115, 242, 255, 0.16);
+  color: var(--cyan);
+}
+
+.status-warning {
+  background: rgba(255, 188, 79, 0.18);
+  border: 1px solid rgba(255, 188, 79, 0.26);
+  color: #fff1cb;
 }
 
 .status-quiet {

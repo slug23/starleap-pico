@@ -11,19 +11,23 @@ const resetting = ref(false);
 const error = ref("");
 const onlineWindowMs = ref(30000);
 const lightHistoryLimit = ref(240);
+const expectedBuzzerFirmwareVersion = ref("");
 const nowMs = ref(Date.now());
 
 let pollTimerId = null;
 let gameTimerId = null;
+let gameLiveTimerId = null;
 let audioContext = null;
 let audioMaster = null;
+let raceStartBuffer = null;
+let audioWarmupPlayed = false;
 let hasHydratedBuzzes = false;
 let knownBuzzKeys = new Set();
 
 const gamePhase = ref("idle");
 const gameCountdownStartMs = ref(null);
 const gameReleaseAtMs = ref(null);
-const gameLiveAtMs = ref(null);
+const gameLiveAtUs = ref(null);
 const gameWinnerPlayerId = ref("");
 const gameArmingLive = ref(false);
 const disqualifiedPlayerIds = ref([]);
@@ -85,15 +89,15 @@ const eligibleBuzzes = computed(() =>
 );
 
 const activeBuzzes = computed(() => {
-  if (gamePhase.value === "countdown" || gamePhase.value === "hold") {
+  if (gamePhase.value === "countdown" || gamePhase.value === "hold" || gamePhase.value === "armed") {
     return [];
   }
 
   if (gamePhase.value === "live" || gamePhase.value === "won") {
-    return eligibleBuzzes.value;
+    return sortBuzzesForRanking(eligibleBuzzes.value);
   }
 
-  return buzzes.value;
+  return sortBuzzesForRanking(buzzes.value);
 });
 
 const firstBuzzer = computed(() => activeBuzzes.value[0] ?? null);
@@ -119,6 +123,10 @@ const sortedBuzzerDevices = computed(() =>
 
 const buzzerOnlineCount = computed(() =>
   sortedBuzzerDevices.value.filter((device) => isOnline(device)).length,
+);
+
+const outdatedBuzzerFirmwareCount = computed(
+  () => sortedBuzzerDevices.value.filter((device) => firmwareNeedsUpdate(device)).length,
 );
 
 const triggerMatrixDevices = computed(() =>
@@ -181,7 +189,10 @@ const darkestSensor = computed(() => {
 });
 
 const gameIsRunning = computed(() =>
-  gamePhase.value === "countdown" || gamePhase.value === "hold" || gamePhase.value === "live",
+  gamePhase.value === "countdown" ||
+  gamePhase.value === "hold" ||
+  gamePhase.value === "armed" ||
+  gamePhase.value === "live",
 );
 
 const gameStatus = computed(() => {
@@ -190,6 +201,8 @@ const gameStatus = computed(() => {
       return "COUNTDOWN";
     case "hold":
       return "HOLD";
+    case "armed":
+      return "SYNC";
     case "live":
       return "LIVE";
     case "won":
@@ -202,7 +215,7 @@ const gameStatus = computed(() => {
 const gamePanelClass = computed(() => ({
   "game-panel-idle": gamePhase.value === "idle",
   "game-panel-countdown": gamePhase.value === "countdown",
-  "game-panel-hold": gamePhase.value === "hold",
+  "game-panel-hold": gamePhase.value === "hold" || gamePhase.value === "armed",
   "game-panel-live": gamePhase.value === "live",
   "game-panel-won": gamePhase.value === "won",
 }));
@@ -214,7 +227,7 @@ const gameDisplay = computed(() => {
     return String(value).padStart(2, "0");
   }
 
-  if (gamePhase.value === "hold") {
+  if (gamePhase.value === "hold" || gamePhase.value === "armed") {
     return "--";
   }
 
@@ -281,7 +294,7 @@ async function ensureAudioReady() {
   if (!audioContext) {
     audioContext = new AudioContextClass();
     audioMaster = audioContext.createGain();
-    audioMaster.gain.value = 1.2;
+    audioMaster.gain.value = 1;
     audioMaster.connect(audioContext.destination);
   }
 
@@ -289,7 +302,71 @@ async function ensureAudioReady() {
     await audioContext.resume();
   }
 
+  if (!raceStartBuffer || raceStartBuffer.sampleRate !== audioContext.sampleRate) {
+    raceStartBuffer = buildRaceStartBuffer(audioContext);
+  }
+
+  warmAudioOutput();
+
   return audioContext.state === "running";
+}
+
+function warmAudioOutput() {
+  if (!audioContext || audioContext.state !== "running" || audioWarmupPlayed) {
+    return;
+  }
+
+  const source = audioContext.createBufferSource();
+  source.buffer = audioContext.createBuffer(1, 1, audioContext.sampleRate);
+  source.connect(audioMaster ?? audioContext.destination);
+  source.start(audioContext.currentTime);
+  source.addEventListener("ended", () => {
+    source.disconnect();
+  });
+  audioWarmupPlayed = true;
+}
+
+function createNoiseGenerator() {
+  let seed = 0x51f15e;
+
+  return () => {
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    return seed / 0x80000000 - 1;
+  };
+}
+
+function buildRaceStartBuffer(context) {
+  const sampleRate = context.sampleRate;
+  const length = Math.ceil(sampleRate * 0.72);
+  const buffer = context.createBuffer(1, length, sampleRate);
+  const samples = buffer.getChannelData(0);
+  const noise = createNoiseGenerator();
+
+  for (let index = 0; index < length; index += 1) {
+    const time = index / sampleRate;
+    const crackEnvelope = Math.exp(-time * 76);
+    const bodyEnvelope = Math.exp(-time * 16);
+    const tailEnvelope = Math.exp(-time * 7);
+    const snap = Math.sin(2 * Math.PI * (2100 * time + 4600 * time * time)) * crackEnvelope;
+    const thumpFrequency = 118 - 72 * Math.min(time / 0.16, 1);
+    const thump = Math.sin(2 * Math.PI * thumpFrequency * time) * Math.exp(-time * 23);
+    const firstReflection =
+      time > 0.045 ? noise() * Math.exp(-(time - 0.045) * 38) * 0.34 : 0;
+    const secondReflection =
+      time > 0.11 ? noise() * Math.exp(-(time - 0.11) * 24) * 0.18 : 0;
+    const pressureWave =
+      noise() * crackEnvelope * 1.05 +
+      noise() * bodyEnvelope * 0.24 +
+      noise() * tailEnvelope * 0.05 +
+      snap * 0.42 +
+      thump * 0.5 +
+      firstReflection +
+      secondReflection;
+
+    samples[index] = Math.tanh(pressureWave * 1.55) * 0.72;
+  }
+
+  return buffer;
 }
 
 function scheduleVoice({
@@ -355,57 +432,27 @@ function scheduleVoice({
   });
 }
 
-function playBongSound(delaySeconds = 0) {
+function playRaceStartSound(delaySeconds = 0) {
   if (!audioContext || audioContext.state !== "running") {
     return;
   }
 
   const startTime = audioContext.currentTime + delaySeconds;
+  const source = audioContext.createBufferSource();
+  const gain = audioContext.createGain();
 
-  scheduleVoice({
-    startTime,
-    frequency: 310,
-    endFrequency: 292,
-    type: "triangle",
-    gain: 0.13,
-    attack: 0.002,
-    duration: 1.4,
-  });
-  scheduleVoice({
-    startTime,
-    frequency: 620,
-    endFrequency: 584,
-    type: "square",
-    gain: 0.08,
-    attack: 0.002,
-    duration: 0.34,
-    filterType: "lowpass",
-    filterFrequency: 1600,
-    q: 0.9,
-  });
-  scheduleVoice({
-    startTime: startTime + 0.01,
-    frequency: 1240,
-    endFrequency: 980,
-    type: "square",
-    gain: 0.055,
-    attack: 0.001,
-    duration: 0.11,
-    filterType: "highpass",
-    filterFrequency: 700,
-    q: 1.2,
-  });
-  scheduleVoice({
-    startTime: startTime + 0.018,
-    frequency: 930,
-    endFrequency: 760,
-    type: "sawtooth",
-    gain: 0.035,
-    attack: 0.001,
-    duration: 0.16,
-    filterType: "bandpass",
-    filterFrequency: 1350,
-    q: 1.5,
+  if (!raceStartBuffer || raceStartBuffer.sampleRate !== audioContext.sampleRate) {
+    raceStartBuffer = buildRaceStartBuffer(audioContext);
+  }
+
+  source.buffer = raceStartBuffer;
+  gain.gain.setValueAtTime(1.05, startTime);
+  source.connect(gain);
+  gain.connect(audioMaster ?? audioContext.destination);
+  source.start(startTime);
+  source.addEventListener("ended", () => {
+    source.disconnect();
+    gain.disconnect();
   });
 }
 
@@ -471,24 +518,188 @@ function formatTime(timestamp) {
   }).format(new Date(timestamp));
 }
 
-function formatDeltaMs(deltaMs) {
-  return Math.max(0, Number(deltaMs) || 0).toFixed(3);
+function formatDeltaUs(deltaUs) {
+  return (Math.max(0, Number(deltaUs) || 0) / 1000).toFixed(3);
 }
 
-function formatDeltaFromFirst(timestamp) {
+function formatSignedDeltaUs(deltaUs) {
+  const value = (Number(deltaUs) || 0) / 1000;
+  const sign = value > 0 ? "+" : "";
+  return `${sign}${value.toFixed(3)}`;
+}
+
+function formatReactionValueUs(deltaUs) {
+  const value = Number(deltaUs) || 0;
+  return value < 0 ? formatSignedDeltaUs(value) : formatDeltaUs(value);
+}
+
+function formatLatencyUs(value) {
+  if (value === null || value === undefined) {
+    return "---.--- ms";
+  }
+
+  return `${formatDeltaUs(value)} ms`;
+}
+
+function firmwareLabel(device) {
+  return String(device?.firmware_version ?? "").trim() || "UNKNOWN";
+}
+
+function firmwareNeedsUpdate(device) {
+  const expected = expectedBuzzerFirmwareVersion.value;
+
+  if (!expected || !isBuzzerDevice(device)) {
+    return false;
+  }
+
+  return firmwareLabel(device) !== expected;
+}
+
+function entryReceivedUs(entry) {
+  if (entry?.received_at_us !== undefined && entry?.received_at_us !== null) {
+    return Number(entry.received_at_us);
+  }
+
+  return Number(entry?.received_at_ms ?? 0) * 1000;
+}
+
+function serverReactionUs(entry) {
+  if (entry?.reaction_us !== undefined && entry?.reaction_us !== null) {
+    return Number(entry.reaction_us);
+  }
+
+  if (gameLiveAtUs.value === null) {
+    return null;
+  }
+
+  return entryReceivedUs(entry) - Number(gameLiveAtUs.value);
+}
+
+function clientReactionUs(entry) {
+  if (entry?.client_reaction_us === undefined || entry?.client_reaction_us === null) {
+    return null;
+  }
+
+  return Number(entry.client_reaction_us);
+}
+
+function rankingReactionUs(entry) {
+  const clientValue = clientReactionUs(entry);
+
+  if (clientValue !== null && clientValue >= 0) {
+    return clientValue;
+  }
+
+  return serverReactionUs(entry) ?? entryReceivedUs(entry);
+}
+
+function sortBuzzesForRanking(entries) {
+  return [...entries].sort((left, right) => {
+    const reactionDelta = rankingReactionUs(left) - rankingReactionUs(right);
+
+    if (reactionDelta !== 0) {
+      return reactionDelta;
+    }
+
+    return Number(left.order ?? 0) - Number(right.order ?? 0);
+  });
+}
+
+function formatDeltaFromFirst(entry) {
   if (!firstBuzzer.value) {
     return "";
   }
 
-  return formatDeltaMs(Number(timestamp) - Number(firstBuzzer.value.received_at_ms));
+  return formatDeltaUs(rankingReactionUs(entry) - rankingReactionUs(firstBuzzer.value));
 }
 
-function formatDeltaFromLive(timestamp) {
-  if (gameLiveAtMs.value === null) {
+function formatClientReactionTime(entry) {
+  const value = clientReactionUs(entry);
+  return value === null ? "---.---" : formatReactionValueUs(value);
+}
+
+function formatServerReactionTime(entry) {
+  const value = serverReactionUs(entry);
+  return value === null ? "---.---" : formatDeltaUs(value);
+}
+
+function formatMethodDifference(entry) {
+  const clientValue = clientReactionUs(entry);
+  const serverValue = serverReactionUs(entry);
+
+  if (clientValue === null || serverValue === null) {
     return "---.---";
   }
 
-  return formatDeltaMs(Number(timestamp) - Number(gameLiveAtMs.value));
+  return formatSignedDeltaUs(clientValue - serverValue);
+}
+
+function formatClientTimingStatus(entry) {
+  const status = String(entry?.client_timing_status ?? "").trim();
+
+  if (!status || status === "ok") {
+    return "";
+  }
+
+  return status.replaceAll("_", " ").toUpperCase();
+}
+
+function goDeliveryLabel(device) {
+  const attemptRound = device?.last_go_attempt_round_id;
+
+  if (attemptRound === null || attemptRound === undefined) {
+    return "GO NONE";
+  }
+
+  return device?.last_go_success_round_id === attemptRound ? `GO OK R${attemptRound}` : `GO MISS R${attemptRound}`;
+}
+
+function goDeliveryNeedsAttention(device) {
+  const attemptRound = device?.last_go_attempt_round_id;
+
+  return (
+    attemptRound !== null &&
+    attemptRound !== undefined &&
+    device?.last_go_success_round_id !== attemptRound
+  );
+}
+
+function picoGoLabel(device) {
+  const round = device?.last_client_go_round_id;
+  const ticksSet = device?.last_client_go_ticks_set;
+
+  if (ticksSet === true && round !== null && round !== undefined) {
+    return `PICO GO R${round}`;
+  }
+
+  if (ticksSet === false) {
+    return "PICO NO GO";
+  }
+
+  return "PICO GO ?";
+}
+
+function showPicoGoLabel(device) {
+  return (
+    device?.last_go_attempt_round_id !== null &&
+    device?.last_go_attempt_round_id !== undefined
+  ) || (
+    device?.last_client_go_round_id !== null &&
+    device?.last_client_go_round_id !== undefined
+  ) || (
+    device?.last_client_go_ticks_set !== null &&
+    device?.last_client_go_ticks_set !== undefined
+  );
+}
+
+function picoGoNeedsAttention(device) {
+  const attemptRound = device?.last_go_attempt_round_id;
+
+  if (attemptRound === null || attemptRound === undefined) {
+    return false;
+  }
+
+  return device?.last_client_go_ticks_set !== true || device?.last_client_go_round_id !== attemptRound;
 }
 
 function compareNodeId(left, right) {
@@ -512,7 +723,7 @@ function isDisqualified(device) {
 function isEarlyPressed(device) {
   return (
     !isDisqualified(device) &&
-    (gamePhase.value === "countdown" || gamePhase.value === "hold") &&
+    (gamePhase.value === "countdown" || gamePhase.value === "hold" || gamePhase.value === "armed") &&
     isOnline(device) &&
     device.button_pressed
   );
@@ -673,11 +884,41 @@ function buildSensorPanel(device) {
   };
 }
 
+function clearGameLiveTimer() {
+  if (gameLiveTimerId !== null) {
+    window.clearTimeout(gameLiveTimerId);
+    gameLiveTimerId = null;
+  }
+}
+
+function scheduleLiveCue(delayMs) {
+  const delay = Math.max(0, Number(delayMs) || 0);
+  const audioWasScheduled = Boolean(audioContext && audioContext.state === "running");
+
+  clearGameLiveTimer();
+  gamePhase.value = delay > 0 ? "armed" : "live";
+
+  if (audioWasScheduled) {
+    playRaceStartSound(delay / 1000);
+  }
+
+  gameLiveTimerId = window.setTimeout(() => {
+    gameLiveTimerId = null;
+    nowMs.value = Date.now();
+    gamePhase.value = "live";
+
+    if (!audioWasScheduled) {
+      playRaceStartSound();
+    }
+  }, delay);
+}
+
 function clearLocalGameState() {
+  clearGameLiveTimer();
   gamePhase.value = "idle";
   gameCountdownStartMs.value = null;
   gameReleaseAtMs.value = null;
-  gameLiveAtMs.value = null;
+  gameLiveAtUs.value = null;
   gameWinnerPlayerId.value = "";
   gameArmingLive.value = false;
   disqualifiedPlayerIds.value = [];
@@ -694,7 +935,7 @@ function markDisqualified(playerId) {
 }
 
 function trackEarlyPresses() {
-  if (gamePhase.value !== "countdown" && gamePhase.value !== "hold") {
+  if (gamePhase.value !== "countdown" && gamePhase.value !== "hold" && gamePhase.value !== "armed") {
     return;
   }
 
@@ -709,6 +950,14 @@ function trackEarlyPresses() {
   }
 }
 
+function applyBuzzerState(data) {
+  buzzes.value = data.buzzes ?? [];
+  devices.value = data.devices ?? [];
+  onlineWindowMs.value = data.online_window_ms ?? 30000;
+  gameLiveAtUs.value = data.live_at_us ?? null;
+  expectedBuzzerFirmwareVersion.value = data.expected_buzzer_firmware_version ?? "";
+}
+
 async function loadBuzzerState() {
   const response = await fetch(`${apiBase}/api/state`);
 
@@ -718,9 +967,7 @@ async function loadBuzzerState() {
 
   const data = await response.json();
   syncBuzzAudio(data.buzzes ?? []);
-  buzzes.value = data.buzzes ?? [];
-  devices.value = data.devices ?? [];
-  onlineWindowMs.value = data.online_window_ms ?? 30000;
+  applyBuzzerState(data);
   trackEarlyPresses();
 }
 
@@ -770,9 +1017,7 @@ async function resetRound() {
     }
 
     const data = await response.json();
-    buzzes.value = data.buzzes ?? [];
-    devices.value = data.devices ?? [];
-    onlineWindowMs.value = data.online_window_ms ?? 30000;
+    applyBuzzerState(data);
     return data;
   } catch (err) {
     error.value = err instanceof Error ? err.message : "Failed to reset the round.";
@@ -789,19 +1034,26 @@ async function resetGame() {
 }
 
 async function armLiveWindow() {
-  if (gameArmingLive.value) {
+  if (gameArmingLive.value || gamePhase.value === "armed") {
     return;
   }
 
   gameArmingLive.value = true;
 
-  const data = await resetRound();
+  try {
+    const response = await fetch(`${apiBase}/api/arm-live`, {
+      method: "POST",
+    });
 
-  if (data) {
-    buzzes.value = data.buzzes ?? [];
-    gameLiveAtMs.value = Date.now();
-    gamePhase.value = "live";
-    playBongSound();
+    if (!response.ok) {
+      throw new Error(`Arm live failed with ${response.status}`);
+    }
+
+    const data = await response.json();
+    applyBuzzerState(data);
+    scheduleLiveCue(data.live_in_ms ?? 0);
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : "Failed to arm the live round.";
   }
 
   gameArmingLive.value = false;
@@ -812,6 +1064,7 @@ async function startGame() {
     return;
   }
 
+  clearGameLiveTimer();
   void ensureAudioReady();
 
   const data = await resetRound();
@@ -824,7 +1077,7 @@ async function startGame() {
   const startedAt = Date.now();
   gameCountdownStartMs.value = startedAt;
   gameReleaseAtMs.value = startedAt + 6000 + 5000 + Math.floor(Math.random() * 5001);
-  gameLiveAtMs.value = null;
+  gameLiveAtUs.value = null;
   gameWinnerPlayerId.value = "";
   gamePhase.value = "countdown";
 }
@@ -885,6 +1138,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   clearPollTimer();
+  clearGameLiveTimer();
 
   if (gameTimerId !== null) {
     window.clearInterval(gameTimerId);
@@ -894,6 +1148,8 @@ onUnmounted(() => {
     void audioContext.close();
     audioContext = null;
     audioMaster = null;
+    raceStartBuffer = null;
+    audioWarmupPlayed = false;
   }
 });
 </script>
@@ -1008,7 +1264,10 @@ onUnmounted(() => {
           <article class="panel devices-panel">
             <div class="panel-header">
               <p class="panel-label">ACTIVE NODES</p>
-              <span class="queue-count">{{ buzzerOnlineCount }} LINKED / {{ buzzerDevices.length }} TRACKED</span>
+              <span class="queue-count">
+                {{ buzzerOnlineCount }} LINKED / {{ buzzerDevices.length }} TRACKED
+                <span v-if="outdatedBuzzerFirmwareCount"> · {{ outdatedBuzzerFirmwareCount }} UPDATE</span>
+              </span>
             </div>
 
             <ul v-if="sortedBuzzerDevices.length" class="device-list">
@@ -1023,10 +1282,59 @@ onUnmounted(() => {
                     <span :class="['status-pill', isOnline(device) ? 'status-online' : 'status-quiet']">
                       {{ isOnline(device) ? "Online" : "Quiet" }}
                     </span>
+                    <span
+                      :class="[
+                        'status-pill',
+                        firmwareNeedsUpdate(device) ? 'status-warning' : 'status-firmware-ok',
+                      ]"
+                    >
+                      {{ firmwareNeedsUpdate(device) ? "UPDATE FW" : "FW OK" }}
+                    </span>
+                    <span
+                      :class="[
+                        'status-pill',
+                        goDeliveryNeedsAttention(device) ? 'status-warning' : 'status-firmware-ok',
+                      ]"
+                    >
+                      {{ goDeliveryLabel(device) }}
+                    </span>
+                    <span
+                      v-if="showPicoGoLabel(device)"
+                      :class="[
+                        'status-pill',
+                        picoGoNeedsAttention(device) ? 'status-warning' : 'status-firmware-ok',
+                      ]"
+                    >
+                      {{ picoGoLabel(device) }}
+                    </span>
                   </div>
                   <p class="queue-meta">
                     SEEN {{ formatLastSeen(device.last_seen_ms) }}
                     <span> · {{ device.button_pressed ? "HOT" : "IDLE" }}</span>
+                    <span> · FW {{ firmwareLabel(device) }}</span>
+                    <span v-if="expectedBuzzerFirmwareVersion">
+                      / EXPECT {{ expectedBuzzerFirmwareVersion }}
+                    </span>
+                    <span
+                      v-if="
+                        device.last_client_checkin_rtt_us !== null &&
+                        device.last_client_checkin_rtt_us !== undefined
+                      "
+                    >
+                      · PING {{ formatLatencyUs(device.last_client_checkin_rtt_us) }} · PJIT
+                      {{ formatLatencyUs(device.last_client_checkin_jitter_us) }}
+                    </span>
+                    <span
+                      v-if="
+                        device.last_calibration_round_id !== null &&
+                        device.last_calibration_round_id !== undefined
+                      "
+                    >
+                      · RTT {{ formatLatencyUs(device.last_calibration_rtt_us) }} · JIT
+                      {{ formatLatencyUs(device.last_calibration_jitter_us) }}
+                    </span>
+                    <span v-if="showPicoGoLabel(device)"> · {{ picoGoLabel(device) }}</span>
+                    <span v-if="device.last_calibration_error"> · CAL {{ device.last_calibration_error }}</span>
                     <span v-if="device.last_ip"> · {{ device.last_ip }}</span>
                     <span v-if="device.mac_address"> · MAC {{ device.mac_address }}</span>
                     <span v-if="device.device_id"> · UID {{ device.device_id }}</span>
@@ -1049,19 +1357,34 @@ onUnmounted(() => {
           </div>
 
           <ol v-if="activeBuzzes.length" class="queue-list">
-            <li v-for="entry in activeBuzzes" :key="`${entry.player_id}-${entry.order}`" class="queue-item">
+            <li
+              v-for="(entry, index) in activeBuzzes"
+              :key="`${entry.player_id}-${entry.order}`"
+              class="queue-item"
+            >
               <div class="queue-item-body">
-                <div class="queue-order">#{{ entry.order }}</div>
+                <div class="queue-order">#{{ index + 1 }}</div>
                 <div class="queue-player-row">
                   <p class="queue-delta">
-                    <span class="queue-delta-value">{{ formatDeltaFromFirst(entry.received_at_ms) }}</span>
+                    <span class="queue-delta-value">{{ formatDeltaFromFirst(entry) }}</span>
                     <span class="queue-delta-unit">ms</span>
                   </p>
-                  <p class="queue-live-delta">
-                    <span class="queue-live-label">RT</span>
-                    <span class="queue-live-value">{{ formatDeltaFromLive(entry.received_at_ms) }}</span>
-                    <span class="queue-live-unit">ms</span>
-                  </p>
+                  <div class="queue-method-stack">
+                    <p class="queue-live-delta queue-client-delta">
+                      <span class="queue-live-label">PICO</span>
+                      <span class="queue-live-value">{{ formatClientReactionTime(entry) }}</span>
+                      <span class="queue-live-unit">ms</span>
+                    </p>
+                    <p class="queue-live-delta">
+                      <span class="queue-live-label">SRV</span>
+                      <span class="queue-live-value">{{ formatServerReactionTime(entry) }}</span>
+                      <span class="queue-live-unit">ms</span>
+                    </p>
+                    <p class="queue-method-diff">DIFF {{ formatMethodDifference(entry) }} ms</p>
+                    <p v-if="formatClientTimingStatus(entry)" class="queue-method-diff queue-method-warning">
+                      {{ formatClientTimingStatus(entry) }}
+                    </p>
+                  </div>
                   <p class="queue-name">{{ displayPlayerLabel(entry) }}</p>
                 </div>
               </div>

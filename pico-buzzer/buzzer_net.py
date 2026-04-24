@@ -22,6 +22,8 @@ class BuzzerHubClient:
         server_path="/api/buzz",
         light_path="/api/light-reading",
         checkin_path="/api/check-in",
+        calibration_port=None,
+        firmware_version=None,
         debug_wifi=False,
         wifi_timeout_seconds=15,
         http_timeout_seconds=5,
@@ -35,6 +37,8 @@ class BuzzerHubClient:
         self.server_path = server_path
         self.light_path = light_path
         self.checkin_path = checkin_path
+        self.calibration_port = calibration_port
+        self.firmware_version = firmware_version
         self.debug_wifi = debug_wifi
         self.wifi_timeout_seconds = wifi_timeout_seconds
         self.http_timeout_seconds = http_timeout_seconds
@@ -70,6 +74,12 @@ class BuzzerHubClient:
 
         if button_pressed is not None:
             payload["button_pressed"] = button_pressed
+
+        if self.calibration_port is not None:
+            payload["calibration_port"] = self.calibration_port
+
+        if self.firmware_version:
+            payload["firmware_version"] = self.firmware_version
 
         if extra_fields:
             payload.update(extra_fields)
@@ -227,6 +237,15 @@ class BuzzerHubClient:
         client.settimeout(self.http_timeout_seconds)
 
         try:
+            if self.debug_wifi:
+                print(
+                    "HTTP POST http://{}:{}{}".format(
+                        self.server_host,
+                        self.server_port,
+                        path,
+                    )
+                )
+
             client.connect(address)
             request = (
                 "POST {} HTTP/1.1\r\n"
