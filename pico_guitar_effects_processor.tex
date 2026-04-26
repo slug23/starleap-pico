@@ -1,0 +1,360 @@
+% Raspberry Pi Pico guitar effects lesson in Codex format
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{parskip}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{lmodern}
+\usepackage{textcomp}
+\usepackage{url}
+
+\geometry{margin=0.72in}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.35em}
+\setlist[itemize]{itemsep=0.18em,topsep=0.18em}
+\setlist[enumerate]{itemsep=0.18em,topsep=0.18em}
+
+\newcommand{\pin}[1]{\texttt{#1}}
+
+\title{Raspberry Pi Pico 2 W Lesson: Build a Lo-Fi Guitar Effects Processor\\\large Safe Audio Input, PWM Output, and First Effects Program}
+\author{Chuck and Emily Neel}
+\date{}
+
+\begin{document}
+\maketitle
+\vspace{-1.0em}
+\small
+
+\section*{What Students Build}
+Students build a breadboard guitar effects processor around a Raspberry Pi Pico 2 W. The project takes an instrument-level guitar signal, shifts it into the safe voltage range for the Pico, samples it on an analog input, applies a simple digital effect, and sends audio back out through a filtered PWM output.
+
+The first goal is not a studio-quality pedal. The first goal is a working signal path that teaches the full chain:
+
+\begin{center}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.17\linewidth} >{\raggedright\arraybackslash}p{0.74\linewidth}}
+\toprule
+Stage & Job \\
+\midrule
+Input jack & Receives the guitar signal from a normal 1/4-inch instrument cable. \\
+Input circuit & Protects the Pico and shifts the guitar waveform around 1.65V. \\
+Pico ADC & Reads the audio on \pin{GP26} / \pin{ADC0}. \\
+Effect code & Changes the samples to make clean, fuzz, tremolo, bitcrush, or a 440 Hz test tone. \\
+PWM output & Sends the processed signal out on \pin{GP16}. \\
+Output filter & Smooths the PWM signal and sends it to a guitar amp or powered speaker input. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section*{Important Safety Rules}
+\begin{itemize}
+    \item Do not connect a guitar, amp, speaker output, headphone output, or 9V pedal supply directly to a Pico GPIO pin.
+    \item A Pico input pin must stay between \texttt{GND} and \texttt{3V3}. Guitar audio normally swings above and below 0V, so it needs an input circuit first.
+    \item The Pico cannot drive a speaker or headphones directly. The output must go to a guitar amp input, powered speaker input, audio interface input, or amplifier module.
+    \item Never connect this project to a guitar amp's speaker output. Use the amp's normal instrument input only.
+    \item Start with the amp volume low. Turn up slowly after the circuit is working.
+    \item Have the circuit checked before plugging in a guitar or amplifier.
+\end{itemize}
+
+\section*{What You Need}
+Exact parts can vary. This lesson assumes a breadboard build with simple analog parts.
+
+\begin{itemize}
+    \item 1 Raspberry Pi Pico 2 W, already flashed with MicroPython
+    \item 1 breadboard and jumper wires
+    \item 1 data-capable USB cable
+    \item 1 regulated 5V breadboard power supply
+    \item 1 mono 1/4-inch input jack for the guitar
+    \item 1 mono 1/4-inch output jack for the amplifier input
+    \item 1 LM358P dual op amp. The \texttt{P} version is the 8-pin DIP package that fits a breadboard.
+    \item Resistors: 2 $\times$ 100k$\Omega$, 1 $\times$ 1M$\Omega$, 1 $\times$ 10k$\Omega$, 1 $\times$ 1k$\Omega$, 1 $\times$ 100k$\Omega$
+    \item Capacitors: 1 $\times$ 0.1$\mu$F, 1 $\times$ 1$\mu$F, 1 $\times$ 10$\mu$F, 1 $\times$ 10nF
+    \item Optional: LED plus 220$\Omega$ resistor for a status light on \pin{GP15}
+    \item Optional: button or footswitch connected to \pin{GP14} for effect changes later
+    \item Guitar, instrument cable, and a small amp or powered speaker with an input volume control
+\end{itemize}
+
+\textbf{LM358P note:} the LM358P is viable for this first lo-fi input buffer, but it is not rail-to-rail. For this lesson, power the LM358P from the regulated \texttt{+5V} breadboard rail, not from \texttt{3V3}. The guitar signal is still biased from the Pico's \texttt{3V3} rail so the Pico analog input rests near 1.65V.
+
+\textbf{Part note:} if you have a ready-made audio codec, ADC/DAC, preamp, or amplifier board, you can use that instead of the simple input/output circuits below. The same software idea still applies, but the wiring will follow that board's pinout.
+
+\section*{Why the Input Circuit Is Needed}
+A guitar pickup creates a small AC signal. AC means the voltage moves positive and negative around 0V. The Pico ADC cannot read negative voltage, so we create a quiet midpoint called \texttt{VBIAS}. For a 3.3V Pico, that midpoint is about 1.65V.
+
+The input circuit does three jobs:
+
+\begin{enumerate}
+    \item It AC-couples the guitar so DC from the circuit does not go back into the guitar.
+    \item It biases the guitar signal around 1.65V so the Pico ADC can read the whole waveform.
+    \item It buffers the guitar with an op amp so the pickup is not loaded down too heavily.
+\end{enumerate}
+
+\section*{Power the Breadboard Rails}
+Use the same rail wiring you have been using:
+
+\begin{enumerate}
+    \item Turn the 5V power supply off before wiring.
+    \item Connect the breadboard \texttt{+5V} rail to Pico physical pin 39, \texttt{VSYS}.
+    \item Connect the breadboard \texttt{GND} rail to Pico physical pin 38, \texttt{GND}.
+    \item Use Pico physical pin 36, \texttt{3V3(OUT)}, only for the bias circuit. Do not connect \texttt{3V3(OUT)} to the \texttt{+5V} rail.
+\end{enumerate}
+
+\textbf{Power check:} before adding the guitar circuit, confirm that the \texttt{+5V} rail is near 5V and the Pico's \texttt{3V3(OUT)} pin is near 3.3V.
+
+\section*{Build the 1.65V Bias Node}
+Turn off power before changing wiring.
+
+\begin{enumerate}
+    \item Connect one 100k$\Omega$ resistor from Pico physical pin 36, \texttt{3V3(OUT)}, to a new breadboard row named \texttt{VBIAS}.
+    \item Connect another 100k$\Omega$ resistor from \texttt{VBIAS} to \texttt{GND}.
+    \item Connect the 10$\mu$F capacitor from \texttt{VBIAS} to \texttt{GND}. If it is polarized, the positive leg goes to \texttt{VBIAS}.
+    \item Connect the 0.1$\mu$F capacitor near the LM358P's power pins, from LM358P pin 8 to LM358P pin 4.
+\end{enumerate}
+
+Before connecting the guitar, use a meter if one is available. \texttt{VBIAS} should be close to 1.65V.
+
+\section*{Build the LM358P Guitar Input}
+Use channel A of the LM358P as a voltage follower. That means the op amp output connects back to its negative input, and the guitar signal goes into the positive input.
+
+\begin{center}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.31\linewidth} >{\raggedright\arraybackslash}p{0.58\linewidth}}
+\toprule
+Connection & Where it goes \\
+\midrule
+LM358P pin 8 & Breadboard \texttt{+5V} rail, the same rail connected to Pico physical pin 39 / \texttt{VSYS} \\
+LM358P pin 4 & Breadboard \texttt{GND} rail \\
+Input jack sleeve & \texttt{GND} \\
+Input jack tip & One side of the 1$\mu$F input capacitor \\
+Other side of input capacitor & LM358P pin 3, channel A positive input \\
+1M$\Omega$ resistor & LM358P pin 3 to \texttt{VBIAS} \\
+LM358P pin 1 & LM358P pin 2, making channel A a voltage follower \\
+LM358P pin 1 & Through a 10k$\Omega$ protection resistor to Pico \pin{GP26} / \pin{ADC0} \\
+Pico \pin{AGND} & \texttt{GND} rail \\
+Unused channel B & Tie LM358P pin 5 to \texttt{VBIAS}, and tie pin 6 to pin 7 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Input capacitor note:} if the 1$\mu$F input capacitor is polarized, put the positive leg toward the op amp positive input node.
+
+\textbf{Why not 3.3V for the LM358P?} the LM358P can run from a low single supply, but its input and output do not reach all the way to the positive rail. With only \texttt{3V3} power, a 1.65V-biased audio signal has almost no headroom and may clip even before the Pico sees it. Powering the LM358P from the \texttt{+5V} rail gives this beginner circuit enough room for a small guitar signal.
+
+\textbf{Check before continuing:} with no guitar plugged in, \pin{GP26} should sit near 1.65V. If it is near 0V or 3.3V, stop and fix the bias circuit.
+
+\section*{Build the PWM Audio Output}
+The Pico creates output audio by rapidly changing a PWM duty cycle. A resistor-capacitor filter smooths that fast PWM into an audio-like signal.
+
+\begin{center}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.31\linewidth} >{\raggedright\arraybackslash}p{0.58\linewidth}}
+\toprule
+Connection & Where it goes \\
+\midrule
+Pico \pin{GP16} & Through a 1k$\Omega$ resistor to a row named \texttt{PWM\_AUDIO} \\
+10nF capacitor & \texttt{PWM\_AUDIO} to \texttt{GND} \\
+Output capacitor, 1$\mu$F & From \texttt{PWM\_AUDIO} to the output jack tip \\
+100k$\Omega$ resistor & Output jack tip to \texttt{GND} \\
+Output jack sleeve & \texttt{GND} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+If the 1$\mu$F output capacitor is polarized, put the positive leg toward \texttt{PWM\_AUDIO}. The guitar amp side should be referenced to ground by the 100k$\Omega$ resistor.
+
+\section*{Optional Status LED and Button}
+These are helpful for debugging.
+
+\begin{itemize}
+    \item Status LED: \pin{GP15} to the LED long leg, LED short leg through 220$\Omega$ to \texttt{GND}.
+    \item Button or footswitch: one side to \pin{GP14}, the other side to \texttt{GND}. The program can use \texttt{Pin.PULL\_UP}.
+\end{itemize}
+
+\section*{Create the Program}
+In VS Code, create a new folder named \texttt{pico-guitar-effects}. Inside that folder, create a file named \texttt{main.py}.
+
+Type this program. Keep the lines short and match the spelling carefully.
+
+\begin{verbatim}
+from machine import ADC, Pin, PWM
+from time import ticks_add, ticks_diff, ticks_us
+
+AUDIO_IN_PIN = 26
+AUDIO_OUT_PIN = 16
+LED_PIN = 15
+
+SAMPLE_RATE = 8000
+SAMPLE_PERIOD_US = 1000000 // SAMPLE_RATE
+PWM_FREQUENCY = 125000
+CENTER = 32768
+
+# Try: "clean", "fuzz", "tremolo", "bitcrush", or "tone"
+EFFECT = "fuzz"
+
+FUZZ_GAIN = 3
+FUZZ_LIMIT = 12000
+BITCRUSH_SHIFT = 6
+TREMOLO_HALF_PERIOD = SAMPLE_RATE // 8
+TONE_FREQUENCY = 440
+TONE_AMPLITUDE = 9000
+
+audio_in = ADC(Pin(AUDIO_IN_PIN))
+audio_out = PWM(Pin(AUDIO_OUT_PIN))
+led = Pin(LED_PIN, Pin.OUT)
+
+audio_out.freq(PWM_FREQUENCY)
+audio_out.duty_u16(CENTER)
+
+
+def clamp(value, low, high):
+    if value < low:
+        return low
+    if value > high:
+        return high
+    return value
+
+
+def process(sample, sample_number):
+    if EFFECT == "tone":
+        phase = (sample_number * TONE_FREQUENCY) % SAMPLE_RATE
+        if phase < SAMPLE_RATE // 2:
+            changed = TONE_AMPLITUDE
+        else:
+            changed = -TONE_AMPLITUDE
+        return clamp(changed + CENTER, 0, 65535)
+
+    centered = sample - CENTER
+
+    if EFFECT == "clean":
+        changed = centered
+    elif EFFECT == "fuzz":
+        changed = clamp(centered * FUZZ_GAIN,
+                        -FUZZ_LIMIT, FUZZ_LIMIT)
+    elif EFFECT == "tremolo":
+        phase = sample_number % (TREMOLO_HALF_PERIOD * 2)
+        if phase < TREMOLO_HALF_PERIOD:
+            changed = centered
+        else:
+            changed = centered // 3
+    elif EFFECT == "bitcrush":
+        changed = (centered >> BITCRUSH_SHIFT) << BITCRUSH_SHIFT
+    else:
+        changed = centered
+
+    return clamp(changed + CENTER, 0, 65535)
+
+
+print("Pico guitar effects processor starting.")
+print("Input: GP26 / ADC0. Output: GP16 PWM.")
+print("Current effect:", EFFECT)
+
+sample_number = 0
+next_sample_at = ticks_us()
+led.on()
+
+try:
+    while True:
+        if EFFECT == "tone":
+            raw = CENTER
+        else:
+            raw = audio_in.read_u16()
+
+        output = process(raw, sample_number)
+        audio_out.duty_u16(output)
+
+        sample_number += 1
+        next_sample_at = ticks_add(next_sample_at, SAMPLE_PERIOD_US)
+        while ticks_diff(next_sample_at, ticks_us()) > 0:
+            pass
+finally:
+    audio_out.duty_u16(CENTER)
+    led.off()
+\end{verbatim}
+
+\section*{Run the Program}
+\begin{enumerate}
+    \item Turn the amplifier volume all the way down.
+    \item Connect the Pico 2 W to the Mac with the USB cable.
+    \item In VS Code, open \texttt{main.py}.
+    \item Use \texttt{MicroPico: Run current file on Pico}.
+    \item Plug the guitar into the input jack.
+    \item Plug the output jack into a small amp or powered speaker input.
+    \item Slowly raise the amp volume while playing the guitar.
+\end{enumerate}
+
+If the circuit and code are working, you should hear a rough fuzz effect. It may sound noisy or lo-fi. That is expected for this first breadboard version.
+
+\section*{Change the Sound}
+Stop the program before editing it. Change the \texttt{EFFECT} line near the top:
+
+\begin{verbatim}
+EFFECT = "clean"
+EFFECT = "fuzz"
+EFFECT = "tremolo"
+EFFECT = "bitcrush"
+EFFECT = "tone"
+\end{verbatim}
+
+Run the file again after each change.
+
+\begin{itemize}
+    \item \texttt{clean}: passes the signal through with very little processing.
+    \item \texttt{fuzz}: boosts the signal and clips it for a distorted sound.
+    \item \texttt{tremolo}: rapidly switches between loud and quiet.
+    \item \texttt{bitcrush}: removes detail from the waveform for a digital sound.
+    \item \texttt{tone}: generates a 440 Hz test tone and ignores the guitar input.
+\end{itemize}
+
+\section*{What the Program Means}
+\begin{itemize}
+    \item \texttt{ADC(Pin(26))} reads the analog input on \pin{GP26}.
+    \item \texttt{PWM(Pin(16))} creates a fast output pulse train on \pin{GP16}.
+    \item \texttt{CENTER = 32768} is the middle of the 16-bit audio range.
+    \item \texttt{sample - CENTER} changes the ADC reading into a signed audio sample.
+    \item The \texttt{process()} function is where the effect happens.
+    \item \texttt{tone} mode is useful for testing the output filter, output buffer, output jack, and amp connection before the guitar input works.
+    \item \texttt{duty\_u16(output)} sends the processed sample to the PWM output.
+    \item The timing loop tries to run at about 8000 samples per second.
+\end{itemize}
+
+\section*{Debugging Checkpoints}
+\begin{enumerate}
+    \item With power on and no guitar plugged in, \texttt{VBIAS} should be about 1.65V.
+    \item \pin{GP26} should also sit near 1.65V when there is no input signal.
+    \item The status LED should turn on when the program starts.
+    \item The full \texttt{pico-guitar/main.py} project prints ADC input stats in the MicroPico console about once per second while you are not in \texttt{tone} mode.
+    \item Touching the input jack tip may create a buzz in the amp. Keep volume low.
+    \item If clean mode works but fuzz is too harsh, lower \texttt{FUZZ\_GAIN} or raise \texttt{FUZZ\_LIMIT}.
+    \item If the audio is very quiet, check that the output capacitor and output jack ground are wired correctly.
+    \item If the sound is squealing or unstable, move wires apart and keep input wires away from output wires.
+\end{enumerate}
+
+\textbf{Console input check:} when you play the guitar, \texttt{peak} and \texttt{span} should grow. \texttt{status=active} means the Pico is seeing a reasonable signal. \texttt{status=quiet} or \texttt{status=weak} means the signal is barely moving. \texttt{status=CENTER\_OFF} usually means the 1.65V bias is wrong. \texttt{status=CLIPPING\_OR\_RAIL} usually means the signal is hitting 0V or 3.3V.
+
+\section*{Troubleshooting}
+\begin{itemize}
+    \item \textbf{No sound at all:} check amp volume, output jack sleeve to \texttt{GND}, and \pin{GP16} wiring.
+    \item \textbf{Very loud hum:} check that the input jack sleeve, output jack sleeve, Pico \texttt{GND}, and op amp \texttt{GND} are connected together.
+    \item \textbf{The guitar sounds thin:} check that the 1M$\Omega$ input resistor goes to \texttt{VBIAS}, not directly to \texttt{GND}.
+    \item \textbf{The Pico disconnects or resets:} unplug immediately and check for shorts between \texttt{3V3} and \texttt{GND}.
+    \item \textbf{The sound is harsh in every mode:} the input may be clipping before the Pico. Lower the guitar volume or reduce op amp gain if you added gain.
+    \item \textbf{The code runs but audio is choppy:} lower \texttt{SAMPLE\_RATE} to 6000 or 4000. MicroPython timing is limited.
+    \item \textbf{A line says \texttt{ImportError}:} make sure the file is running on the Pico, not on the Mac.
+\end{itemize}
+
+\section*{Extensions}
+After the basic version works:
+
+\begin{itemize}
+    \item Add a potentiometer to \pin{GP27} and use it to control fuzz gain.
+    \item Use the button on \pin{GP14} to switch effects without editing code.
+    \item Replace the PWM output with an external DAC or I2S audio codec.
+    \item Rewrite the audio loop in C or use PIO/DMA for lower latency and cleaner sound.
+    \item Put the circuit in a metal enclosure with proper jacks and strain relief.
+\end{itemize}
+
+\section*{Key Takeaway}
+The Pico 2 W is a digital board, but a guitar is an analog instrument. A useful effects processor needs both sides: an analog input/output circuit that protects the hardware, and software that changes the sound in real time.
+
+\end{document}
