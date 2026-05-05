@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 320" font-family="sans-serif">
+  <rect width="400" height="320" fill="#0d121b"/>
+  <!-- TO-92 viewed from above: D-shape body, leads splayed out the flat side -->
+  <!-- Body: flat side at bottom, curved back on top -->
+  <path d="M 110 200 L 290 200 Q 290 80 200 80 Q 110 80 110 200 Z"
+        fill="#15171a" stroke="#3a3f48" stroke-width="2"/>
+  <!-- subtle highlight on rounded back to suggest curvature -->
+  <path d="M 130 110 Q 200 70 270 110" fill="none" stroke="#2b3450" stroke-width="2" opacity="0.6"/>
+  <!-- 3 lead positions visible at the flat edge -->
+  <circle cx="160" cy="200" r="6" fill="#bdbdbd" stroke="#5a6070" stroke-width="1"/>
+  <circle cx="200" cy="200" r="6" fill="#bdbdbd" stroke="#5a6070" stroke-width="1"/>
+  <circle cx="240" cy="200" r="6" fill="#bdbdbd" stroke="#5a6070" stroke-width="1"/>
+  <!-- leads continuing out, splayed slightly -->
+  <line x1="160" y1="200" x2="150" y2="280" stroke="#bdbdbd" stroke-width="3"/>
+  <line x1="200" y1="200" x2="200" y2="280" stroke="#bdbdbd" stroke-width="3"/>
+  <line x1="240" y1="200" x2="250" y2="280" stroke="#bdbdbd" stroke-width="3"/>
+</svg>

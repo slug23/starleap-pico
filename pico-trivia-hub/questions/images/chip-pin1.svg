@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" font-family="sans-serif">
+  <rect width="400" height="240" fill="#0d121b"/>
+  <text x="200" y="22" text-anchor="middle" fill="#7e8aa0" font-size="14">DIP chip — top view</text>
+  <!-- DIP-8 body, horizontal, notch on left edge -->
+  <path d="M 80 80 L 320 80 L 320 160 L 80 160 L 80 130 A 10 10 0 0 0 80 110 L 80 80 Z"
+        fill="#15171a" stroke="#3a3f48" stroke-width="2"/>
+  <text x="200" y="128" text-anchor="middle" fill="#e6ecf3" font-size="20" font-weight="bold">DIP</text>
+  <!-- pins: 4 bottom, 4 top -->
+  <g fill="#bdbdbd">
+    <rect x="103" y="160" width="14" height="34"/>
+    <rect x="163" y="160" width="14" height="34"/>
+    <rect x="223" y="160" width="14" height="34"/>
+    <rect x="283" y="160" width="14" height="34"/>
+    <rect x="103" y="46" width="14" height="34"/>
+    <rect x="163" y="46" width="14" height="34"/>
+    <rect x="223" y="46" width="14" height="34"/>
+    <rect x="283" y="46" width="14" height="34"/>
+  </g>
+  <!-- arrow pointing to the top-left pin -->
+  <defs>
+    <marker id="ah45" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#cc2030"/>
+    </marker>
+  </defs>
+  <line x1="50" y1="22" x2="105" y2="48" stroke="#cc2030" stroke-width="3" marker-end="url(#ah45)"/>
+  <text x="26" y="26" fill="#cc2030" font-size="18" font-weight="bold">?</text>
+</svg>

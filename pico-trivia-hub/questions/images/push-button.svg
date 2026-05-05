@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 320" font-family="sans-serif">
+  <rect width="400" height="320" fill="#0d121b"/>
+  <!-- 4-pin tactile switch body -->
+  <rect x="130" y="100" width="140" height="140" rx="6" fill="#1a1f2a" stroke="#3a3f48" stroke-width="2"/>
+  <!-- round button on top -->
+  <circle cx="200" cy="170" r="36" fill="#cc2030" stroke="#7a0e1c" stroke-width="3"/>
+  <!-- 4 pins -->
+  <line x1="155" y1="240" x2="155" y2="290" stroke="#bdbdbd" stroke-width="4"/>
+  <line x1="245" y1="240" x2="245" y2="290" stroke="#bdbdbd" stroke-width="4"/>
+  <line x1="155" y1="100" x2="155" y2="60" stroke="#bdbdbd" stroke-width="4"/>
+  <line x1="245" y1="100" x2="245" y2="60" stroke="#bdbdbd" stroke-width="4"/>
+</svg>

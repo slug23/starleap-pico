@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" font-family="sans-serif">
+  <rect width="400" height="200" fill="#0d121b"/>
+  <!-- diode triangle and bar -->
+  <line x1="40" y1="100" x2="160" y2="100" stroke="#e6ecf3" stroke-width="3"/>
+  <polygon points="160,60 160,140 230,100" fill="none" stroke="#e6ecf3" stroke-width="3"/>
+  <line x1="230" y1="60" x2="230" y2="140" stroke="#e6ecf3" stroke-width="3"/>
+  <line x1="230" y1="100" x2="360" y2="100" stroke="#e6ecf3" stroke-width="3"/>
+  <!-- two outward arrows for light emission -->
+  <line x1="190" y1="55" x2="240" y2="20" stroke="#e6ecf3" stroke-width="2.5"/>
+  <polygon points="240,20 222,28 232,38" fill="#e6ecf3"/>
+  <line x1="170" y1="50" x2="220" y2="10" stroke="#e6ecf3" stroke-width="2.5"/>
+  <polygon points="220,10 202,18 212,28" fill="#e6ecf3"/>
+</svg>

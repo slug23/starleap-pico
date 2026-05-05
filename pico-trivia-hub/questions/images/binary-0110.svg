@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 200" font-family="ui-monospace, Menlo, monospace">
+  <rect width="360" height="200" fill="#0d121b"/>
+  <text x="180" y="44" text-anchor="middle" fill="#7e8aa0" font-size="18" font-family="sans-serif">4-bit binary</text>
+  <text x="180" y="135" text-anchor="middle" fill="#e6ecf3" font-size="80" font-weight="bold" letter-spacing="6">0110</text>
+</svg>

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 220" font-family="sans-serif">
+  <rect width="520" height="220" fill="#0d121b"/>
+  <!-- DIP-14 body, horizontal, notch on left edge -->
+  <path d="M 60 70 L 460 70 L 460 150 L 60 150 L 60 120 A 10 10 0 0 0 60 100 L 60 70 Z"
+        fill="#15171a" stroke="#3a3f48" stroke-width="2"/>
+  <text x="260" y="118" text-anchor="middle" fill="#bdbdbd" font-size="36" font-weight="bold">SN7400</text>
+  <!-- pins: 7 bottom, 7 top -->
+  <g fill="#bdbdbd">
+    <rect x="83" y="150" width="14" height="34"/>
+    <rect x="138" y="150" width="14" height="34"/>
+    <rect x="193" y="150" width="14" height="34"/>
+    <rect x="248" y="150" width="14" height="34"/>
+    <rect x="303" y="150" width="14" height="34"/>
+    <rect x="358" y="150" width="14" height="34"/>
+    <rect x="413" y="150" width="14" height="34"/>
+    <rect x="83" y="36" width="14" height="34"/>
+    <rect x="138" y="36" width="14" height="34"/>
+    <rect x="193" y="36" width="14" height="34"/>
+    <rect x="248" y="36" width="14" height="34"/>
+    <rect x="303" y="36" width="14" height="34"/>
+    <rect x="358" y="36" width="14" height="34"/>
+    <rect x="413" y="36" width="14" height="34"/>
+  </g>
+</svg>

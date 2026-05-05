@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 280" font-family="sans-serif">
+  <rect width="480" height="280" fill="#0d121b"/>
+  <rect x="20" y="40" width="440" height="220" rx="8" fill="#f3ead3" stroke="#a39668" stroke-width="2"/>
+  <!-- power rails -->
+  <line x1="40" y1="56" x2="460" y2="56" stroke="#cc2030" stroke-width="2"/>
+  <line x1="40" y1="68" x2="460" y2="68" stroke="#1d3a6b" stroke-width="2"/>
+  <line x1="40" y1="232" x2="460" y2="232" stroke="#cc2030" stroke-width="2"/>
+  <line x1="40" y1="244" x2="460" y2="244" stroke="#1d3a6b" stroke-width="2"/>
+  <!-- middle gutter -->
+  <line x1="20" y1="150" x2="460" y2="150" stroke="#a39668" stroke-width="2"/>
+  <!-- holes -->
+  <g fill="#0d121b">
+    <!-- top power rails holes -->
+    <g>
+      <circle cx="60" cy="56" r="2"/><circle cx="80" cy="56" r="2"/><circle cx="100" cy="56" r="2"/><circle cx="120" cy="56" r="2"/><circle cx="140" cy="56" r="2"/>
+      <circle cx="180" cy="56" r="2"/><circle cx="200" cy="56" r="2"/><circle cx="220" cy="56" r="2"/><circle cx="240" cy="56" r="2"/><circle cx="260" cy="56" r="2"/>
+      <circle cx="300" cy="56" r="2"/><circle cx="320" cy="56" r="2"/><circle cx="340" cy="56" r="2"/><circle cx="360" cy="56" r="2"/><circle cx="380" cy="56" r="2"/>
+      <circle cx="60" cy="68" r="2"/><circle cx="80" cy="68" r="2"/><circle cx="100" cy="68" r="2"/><circle cx="120" cy="68" r="2"/><circle cx="140" cy="68" r="2"/>
+    </g>
+    <!-- center grid holes (sparse representation) -->
+    <g>
+      <!-- A-E rows -->
+      <g>
+        <circle cx="60" cy="90" r="2"/><circle cx="60" cy="100" r="2"/><circle cx="60" cy="110" r="2"/><circle cx="60" cy="120" r="2"/><circle cx="60" cy="130" r="2"/>
+        <circle cx="80" cy="90" r="2"/><circle cx="80" cy="100" r="2"/><circle cx="80" cy="110" r="2"/><circle cx="80" cy="120" r="2"/><circle cx="80" cy="130" r="2"/>
+        <circle cx="100" cy="90" r="2"/><circle cx="100" cy="100" r="2"/><circle cx="100" cy="110" r="2"/><circle cx="100" cy="120" r="2"/><circle cx="100" cy="130" r="2"/>
+        <circle cx="120" cy="90" r="2"/><circle cx="120" cy="100" r="2"/><circle cx="120" cy="110" r="2"/><circle cx="120" cy="120" r="2"/><circle cx="120" cy="130" r="2"/>
+      </g>
+      <!-- F-J rows -->
+      <g>
+        <circle cx="60" cy="170" r="2"/><circle cx="60" cy="180" r="2"/><circle cx="60" cy="190" r="2"/><circle cx="60" cy="200" r="2"/><circle cx="60" cy="210" r="2"/>
+        <circle cx="80" cy="170" r="2"/><circle cx="80" cy="180" r="2"/><circle cx="80" cy="190" r="2"/><circle cx="80" cy="200" r="2"/><circle cx="80" cy="210" r="2"/>
+        <circle cx="100" cy="170" r="2"/><circle cx="100" cy="180" r="2"/><circle cx="100" cy="190" r="2"/><circle cx="100" cy="200" r="2"/><circle cx="100" cy="210" r="2"/>
+        <circle cx="120" cy="170" r="2"/><circle cx="120" cy="180" r="2"/><circle cx="120" cy="190" r="2"/><circle cx="120" cy="200" r="2"/><circle cx="120" cy="210" r="2"/>
+      </g>
+    </g>
+  </g>
+</svg>

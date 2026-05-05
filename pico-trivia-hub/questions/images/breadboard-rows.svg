@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 280" font-family="sans-serif">
+  <rect width="480" height="280" fill="#0d121b"/>
+  <text x="240" y="22" text-anchor="middle" fill="#7e8aa0" font-size="14">Highlighted holes</text>
+  <rect x="20" y="40" width="440" height="220" rx="8" fill="#f3ead3" stroke="#a39668" stroke-width="2"/>
+  <line x1="40" y1="56" x2="460" y2="56" stroke="#cc2030" stroke-width="2"/>
+  <line x1="40" y1="68" x2="460" y2="68" stroke="#1d3a6b" stroke-width="2"/>
+  <line x1="40" y1="232" x2="460" y2="232" stroke="#cc2030" stroke-width="2"/>
+  <line x1="40" y1="244" x2="460" y2="244" stroke="#1d3a6b" stroke-width="2"/>
+  <line x1="20" y1="150" x2="460" y2="150" stroke="#a39668" stroke-width="2"/>
+  <g fill="#806e3e" font-size="11">
+    <text x="38" y="93">A</text><text x="38" y="113">B</text><text x="38" y="133">C</text><text x="38" y="153">D</text>
+  </g>
+  <g fill="#806e3e" font-size="9">
+    <text x="55" y="84">1</text><text x="75" y="84">2</text><text x="95" y="84">3</text><text x="115" y="84">4</text><text x="135" y="84">5</text>
+  </g>
+  <!-- highlight 2 cells: A1 and A5 (different numbered rows) -->
+  <circle cx="60" cy="92" r="9" fill="#d4a300" opacity="0.55"/>
+  <circle cx="140" cy="92" r="9" fill="#d4a300" opacity="0.55"/>
+  <g fill="#0d121b">
+    <circle cx="60" cy="92" r="2.5"/><circle cx="60" cy="105" r="2"/><circle cx="60" cy="118" r="2"/><circle cx="60" cy="131" r="2"/><circle cx="60" cy="144" r="2"/>
+    <circle cx="80" cy="92" r="2"/><circle cx="80" cy="105" r="2"/><circle cx="80" cy="118" r="2"/><circle cx="80" cy="131" r="2"/><circle cx="80" cy="144" r="2"/>
+    <circle cx="100" cy="92" r="2"/><circle cx="100" cy="105" r="2"/><circle cx="100" cy="118" r="2"/><circle cx="100" cy="131" r="2"/><circle cx="100" cy="144" r="2"/>
+    <circle cx="120" cy="92" r="2"/><circle cx="120" cy="105" r="2"/><circle cx="120" cy="118" r="2"/><circle cx="120" cy="131" r="2"/><circle cx="120" cy="144" r="2"/>
+    <circle cx="140" cy="92" r="2.5"/><circle cx="140" cy="105" r="2"/><circle cx="140" cy="118" r="2"/><circle cx="140" cy="131" r="2"/><circle cx="140" cy="144" r="2"/>
+  </g>
+</svg>

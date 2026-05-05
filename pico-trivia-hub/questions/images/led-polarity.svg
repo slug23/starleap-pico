@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 360" font-family="sans-serif">
+  <rect width="400" height="360" fill="#0d121b"/>
+  <text x="200" y="30" text-anchor="middle" fill="#7e8aa0" font-size="14">LED, side view</text>
+  <ellipse cx="200" cy="135" rx="55" ry="80" fill="#cc2030" stroke="#7a0e1c" stroke-width="3"/>
+  <ellipse cx="180" cy="105" rx="14" ry="22" fill="#ff8a98" opacity="0.6"/>
+  <rect x="140" y="200" width="120" height="14" fill="#a3192a" stroke="#5e0712" stroke-width="2"/>
+  <!-- short leg (cathode) on the LEFT, long leg on the RIGHT -->
+  <line x1="180" y1="214" x2="180" y2="270" stroke="#bdbdbd" stroke-width="4"/>
+  <line x1="220" y1="214" x2="220" y2="320" stroke="#bdbdbd" stroke-width="4"/>
+  <text x="180" y="295" text-anchor="middle" fill="#e6ecf3" font-size="14">short leg</text>
+  <text x="220" y="345" text-anchor="middle" fill="#e6ecf3" font-size="14">long leg</text>
+</svg>

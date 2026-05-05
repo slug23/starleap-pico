@@ -1,0 +1,428 @@
+{
+  "version": "2026.05.04.1",
+  "title": "Electronics Basics Trivia",
+  "questions": [
+    {
+      "id": "q01",
+      "category": "Component ID",
+      "prompt": "What is this component?",
+      "answer": "LED (light-emitting diode)",
+      "images": ["led-photo.svg"]
+    },
+    {
+      "id": "q02",
+      "category": "Component ID",
+      "prompt": "What is this component?",
+      "answer": "Resistor",
+      "images": ["resistor-photo.svg"]
+    },
+    {
+      "id": "q03",
+      "category": "Component ID",
+      "prompt": "What is this component? (the tall cylinder with a stripe down one side)",
+      "answer": "Electrolytic capacitor",
+      "images": ["electrolytic-cap.svg"]
+    },
+    {
+      "id": "q04",
+      "category": "Component ID",
+      "prompt": "What is this component? (the small disc with two leads)",
+      "answer": "Ceramic capacitor",
+      "images": ["ceramic-cap.svg"]
+    },
+    {
+      "id": "q05",
+      "category": "Component ID",
+      "prompt": "What is this component? (3 leads, flat black plastic body, rounded back)",
+      "answer": "Transistor (NPN, in a TO-92 package — the kind in our parts kit)",
+      "images": ["transistor-to92.svg", "transistor-top.svg"],
+      "image_labels": ["side", "top"]
+    },
+    {
+      "id": "q06",
+      "category": "Component ID",
+      "prompt": "What is this component?",
+      "answer": "Potentiometer (a knob whose position changes resistance — a 'pot')",
+      "images": ["potentiometer.svg", "potentiometer-top.svg"],
+      "image_labels": ["side", "top"]
+    },
+    {
+      "id": "q07",
+      "category": "Component ID",
+      "prompt": "What is this component?",
+      "answer": "Push button (a momentary switch)",
+      "images": ["push-button.svg"]
+    },
+    {
+      "id": "q08",
+      "category": "Component ID",
+      "prompt": "What is this component?",
+      "answer": "Slide switch",
+      "images": ["slide-switch.svg"]
+    },
+    {
+      "id": "q09",
+      "category": "Component ID",
+      "prompt": "What is this thing called?",
+      "answer": "Breadboard",
+      "images": ["breadboard.svg"]
+    },
+    {
+      "id": "q10",
+      "category": "Component ID",
+      "prompt": "What is this component called?",
+      "answer": "Seven-segment display (a 7-segment LED display)",
+      "images": ["7segment.svg"]
+    },
+    {
+      "id": "q11",
+      "category": "Chips",
+      "prompt": "What is this chip called? (look at the number printed on it)",
+      "answer": "555 timer",
+      "images": ["555-chip.svg"]
+    },
+    {
+      "id": "q12",
+      "category": "Chips",
+      "prompt": "Chips with numbers like 7400, 7408, 7432 belong to which family of chips?",
+      "answer": "The 74xx (or 7400) logic family — chips full of logic gates (AND, OR, NAND, etc.)",
+      "images": ["74xx-chip.svg"]
+    },
+    {
+      "id": "q13",
+      "category": "Tools",
+      "prompt": "What is this tool used for?",
+      "answer": "Stripping the plastic insulation off the end of a wire (wire strippers)",
+      "images": ["wire-stripper.svg"]
+    },
+    {
+      "id": "q14",
+      "category": "Tools",
+      "prompt": "What is this tool called?",
+      "answer": "Needle-nose pliers",
+      "images": ["needle-nose-pliers.svg"]
+    },
+    {
+      "id": "q15",
+      "category": "Tools",
+      "prompt": "What is this tool used for?",
+      "answer": "Cutting wires (wire cutters / flush cutters)",
+      "images": ["wire-cutter.svg"]
+    },
+    {
+      "id": "q16",
+      "category": "Schematic Symbols",
+      "prompt": "What does this schematic symbol represent?",
+      "answer": "Resistor",
+      "images": ["symbol-resistor.svg"]
+    },
+    {
+      "id": "q17",
+      "category": "Schematic Symbols",
+      "prompt": "What does this schematic symbol represent?",
+      "answer": "LED (the arrows mean it gives off light)",
+      "images": ["symbol-led.svg"]
+    },
+    {
+      "id": "q18",
+      "category": "Schematic Symbols",
+      "prompt": "What does this schematic symbol represent?",
+      "answer": "Capacitor",
+      "images": ["symbol-cap.svg"]
+    },
+    {
+      "id": "q19",
+      "category": "Schematic Symbols",
+      "prompt": "What does this schematic symbol represent?",
+      "answer": "Battery (or a single cell — long line is +, short line is −)",
+      "images": ["symbol-battery.svg"]
+    },
+    {
+      "id": "q20",
+      "category": "Schematic Symbols",
+      "prompt": "What does this schematic symbol represent?",
+      "answer": "A switch (SPST — single pole, single throw)",
+      "images": ["symbol-switch.svg"]
+    },
+    {
+      "id": "q21",
+      "category": "Logic Gates",
+      "prompt": "This is the truth table for which gate?",
+      "answer": "AND",
+      "images": ["truth-and.svg"]
+    },
+    {
+      "id": "q22",
+      "category": "Logic Gates",
+      "prompt": "This is the truth table for which gate?",
+      "answer": "OR",
+      "images": ["truth-or.svg"]
+    },
+    {
+      "id": "q23",
+      "category": "Logic Gates",
+      "prompt": "This is the truth table for which gate?",
+      "answer": "NOT (also called an inverter)",
+      "images": ["truth-not.svg"]
+    },
+    {
+      "id": "q24",
+      "category": "Logic Gates",
+      "prompt": "This is the truth table for which gate?",
+      "answer": "NAND (NOT-AND — it's AND, but flipped)",
+      "images": ["truth-nand.svg"]
+    },
+    {
+      "id": "q25",
+      "category": "Logic Gates",
+      "prompt": "What gate is this symbol?",
+      "answer": "AND (D-shape with a flat back)",
+      "images": ["gate-and.svg"]
+    },
+    {
+      "id": "q26",
+      "category": "Logic Gates",
+      "prompt": "What gate is this symbol?",
+      "answer": "OR (curved back, pointed front)",
+      "images": ["gate-or.svg"]
+    },
+    {
+      "id": "q27",
+      "category": "Resistor Color Codes",
+      "prompt": "A resistor has bands: orange, orange, brown. What is its resistance?",
+      "answer": "330 Ω (3, 3, ×10 → 33 with one zero added = 330 ohms)",
+      "images": ["resistor-oob.svg"]
+    },
+    {
+      "id": "q28",
+      "category": "Resistor Color Codes",
+      "prompt": "A resistor has bands: brown, black, red. What is its resistance?",
+      "answer": "1,000 Ω (1 kΩ) — 1, 0, ×100 → 10 with two zeros = 1000",
+      "images": ["resistor-bbr.svg"]
+    },
+    {
+      "id": "q29",
+      "category": "Resistor Color Codes",
+      "prompt": "A resistor has bands: brown, black, orange. What is its resistance?",
+      "answer": "10,000 Ω (10 kΩ) — 1, 0, ×1000 → 10 with three zeros = 10,000",
+      "images": ["resistor-bbo.svg"]
+    },
+    {
+      "id": "q30",
+      "category": "Breadboard",
+      "prompt": "On a standard breadboard, the long rails along each long edge (often marked red and blue/black) are usually used for what?",
+      "answer": "Power and ground (the power rails / bus strips — one rail is + and the other is −/ground)",
+      "images": ["breadboard-rails.svg"]
+    },
+    {
+      "id": "q31",
+      "category": "Breadboard",
+      "prompt": "Look at the highlighted holes on this breadboard. Are these holes electrically connected to each other?",
+      "answer": "Yes — the five holes labeled A through E (or F through J) in a single numbered row are all connected together inside the breadboard",
+      "images": ["breadboard-row.svg"]
+    },
+    {
+      "id": "q32",
+      "category": "Breadboard",
+      "prompt": "Look at the highlighted holes on this breadboard. Are these holes electrically connected to each other?",
+      "answer": "No — these holes are in different numbered rows. Each numbered row is its own group of 5; they are NOT connected to neighboring rows in the central area",
+      "images": ["breadboard-rows.svg"]
+    },
+    {
+      "id": "q33",
+      "category": "Circuit Design",
+      "prompt": "Which of these two wirings is a valid 3-way switch circuit, A or B?",
+      "answer": "B is correct — each 3-way switch has one common terminal and two travelers; the travelers run between the two switches and the load (light) sits between the two commons. A is wrong because the travelers don't cross between the switches, so flipping one switch can't always change the light's state.",
+      "images": ["3way-A.svg", "3way-B.svg"]
+    },
+    {
+      "id": "q34",
+      "category": "Binary",
+      "prompt": "Look at the table. The 4-bit binary for 4 is missing. What is it?",
+      "answer": "0100",
+      "images": ["binary-missing.svg"]
+    },
+    {
+      "id": "q35",
+      "category": "Binary",
+      "prompt": "What is the decimal value of the 4-bit binary number 0110?",
+      "answer": "6",
+      "images": ["binary-0110.svg"]
+    },
+    {
+      "id": "q36",
+      "category": "Polarity",
+      "prompt": "Does the LONG leg of an LED go to positive (power) or negative (ground)?",
+      "answer": "Positive — the long leg is the anode (+). The short leg is the cathode (−) and goes to ground.",
+      "images": ["led-polarity.svg"]
+    },
+    {
+      "id": "q37",
+      "category": "Polarity",
+      "prompt": "On an electrolytic capacitor (the tall cylinder kind), which side is marked with a stripe — positive or negative?",
+      "answer": "Negative — the stripe (and the shorter lead) marks the negative side",
+      "images": ["cap-polarity.svg"]
+    },
+    {
+      "id": "q38",
+      "category": "Polarity",
+      "prompt": "Which leg of an LED is the cathode — the long leg or the short leg?",
+      "answer": "The short leg is the cathode (it goes to ground / the negative side)",
+      "images": []
+    },
+    {
+      "id": "q39",
+      "category": "Tools",
+      "prompt": "Which tool has notched / stepped jaws so you can squeeze and slide off the plastic insulation without cutting the metal wire underneath?",
+      "answer": "Wire strippers",
+      "images": []
+    },
+    {
+      "id": "q40",
+      "category": "Tools",
+      "prompt": "Which tool's pointy tips are best for grabbing tiny component leads or pulling parts out of tight spots on a breadboard?",
+      "answer": "Needle-nose pliers",
+      "images": []
+    },
+    {
+      "id": "q41",
+      "category": "Pico",
+      "prompt": "What is the morse code for S.O.S.?",
+      "answer": "... --- ...   (three dots, three dashes, three dots — S is dot-dot-dot, O is dash-dash-dash)",
+      "images": []
+    },
+    {
+      "id": "q42",
+      "category": "Pico",
+      "prompt": "How many pins are on the Raspberry Pi Pico 2 W?",
+      "answer": "40 pins (20 on each long side)",
+      "images": []
+    },
+    {
+      "id": "q43",
+      "category": "Pico",
+      "prompt": "What does the 'W' in 'Pico 2 W' stand for?",
+      "answer": "Wireless — it has built-in Wi-Fi (and Bluetooth)",
+      "images": []
+    },
+    {
+      "id": "q44",
+      "category": "Chips",
+      "prompt": "On a black DIP chip, what is the little notch / divot at one end for?",
+      "answer": "It marks the orientation of the chip. With the notch on the left, pin 1 is the pin just below the notch (bottom-left). Pin numbers count UP going counter-clockwise from the notch.",
+      "images": ["chip-notch.svg"]
+    },
+    {
+      "id": "q45",
+      "category": "Chips",
+      "prompt": "Look at the chip — the notch is on the left, and the arrow is pointing to a pin. What pin number is this?",
+      "answer": "Pin 8 — the top-left pin (just above the notch). Pin numbers count up counter-clockwise from the notch, so pin 1 is the bottom-left pin and pin 8 is the last pin before wrapping back around.",
+      "images": ["chip-pin1.svg"]
+    },
+    {
+      "id": "q46",
+      "category": "Chips",
+      "prompt": "Once you've found pin 1 on a DIP chip, which way do the pin numbers go around the chip?",
+      "answer": "Counter-clockwise around the chip (when viewed from above). With the notch on the left, that means: across the bottom from left to right, up the right side, and back across the top.",
+      "images": []
+    },
+    {
+      "id": "q47",
+      "category": "Chips",
+      "prompt": "The 555 timer chip is famous for doing what?",
+      "answer": "Generating timing pulses or oscillating (blinking) signals — it's a timer / pulse generator",
+      "images": []
+    },
+    {
+      "id": "q48",
+      "category": "Chips",
+      "prompt": "Chips in the 74xx family (like 7400, 7408, 7432) contain what kind of circuits inside?",
+      "answer": "Logic gates (AND, OR, NAND, NOR, XOR, etc., packaged as little ICs)",
+      "images": []
+    },
+    {
+      "id": "q49",
+      "category": "Resistors",
+      "prompt": "When you put two resistors in SERIES (one after the other), does the total resistance go up or down?",
+      "answer": "Up — resistances in series add together",
+      "images": []
+    },
+    {
+      "id": "q50",
+      "category": "Resistors",
+      "prompt": "What is the main job of a resistor in a circuit?",
+      "answer": "To limit current (and/or drop voltage) — for example, to protect an LED from too much current",
+      "images": []
+    },
+    {
+      "id": "q51",
+      "category": "Switches",
+      "prompt": "A push button is called a 'momentary' switch. What does momentary mean?",
+      "answer": "It only connects the circuit while you're pressing it — it springs back open as soon as you let go",
+      "images": []
+    },
+    {
+      "id": "q52",
+      "category": "Switches",
+      "prompt": "What does 'normally open' mean for a button or switch?",
+      "answer": "When the button is NOT being pressed (its normal/resting state), the contacts are open — no current can flow until you press it",
+      "images": []
+    },
+    {
+      "id": "q53",
+      "category": "Concepts",
+      "prompt": "What does LED stand for?",
+      "answer": "Light-Emitting Diode",
+      "images": []
+    },
+    {
+      "id": "q54",
+      "category": "Concepts",
+      "prompt": "What does a capacitor do in a circuit?",
+      "answer": "It stores electrical charge (and releases it later) — like a tiny rechargeable battery for very short bursts",
+      "images": []
+    },
+    {
+      "id": "q55",
+      "category": "Concepts",
+      "prompt": "What unit is resistance measured in?",
+      "answer": "Ohms (the symbol is Ω, the Greek letter omega)",
+      "images": []
+    },
+    {
+      "id": "q56",
+      "category": "Concepts",
+      "prompt": "What unit is voltage measured in?",
+      "answer": "Volts (V)",
+      "images": []
+    },
+    {
+      "id": "q57",
+      "category": "Concepts",
+      "prompt": "What unit is current measured in?",
+      "answer": "Amperes — usually shortened to amps (A)",
+      "images": []
+    },
+    {
+      "id": "q58",
+      "category": "Concepts",
+      "prompt": "True or false: a diode lets current flow in only one direction.",
+      "answer": "True — that's the defining feature of a diode (it's a one-way valve for current)",
+      "images": []
+    },
+    {
+      "id": "q59",
+      "category": "Power",
+      "prompt": "What voltage did we always set our battery packs to when powering our breadboards?",
+      "answer": "5V (5 volts)",
+      "images": []
+    },
+    {
+      "id": "q60",
+      "category": "Concepts",
+      "prompt": "If you connect an LED directly to a battery without a resistor, what is likely to happen?",
+      "answer": "The LED will burn out — it pulls too much current and dies. That's why we always put a current-limiting resistor in series with an LED.",
+      "images": []
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 280" font-family="sans-serif">
+  <rect width="480" height="280" fill="#0d121b"/>
+  <text x="240" y="22" text-anchor="middle" fill="#7e8aa0" font-size="14">Power rails highlighted</text>
+  <rect x="20" y="40" width="440" height="220" rx="8" fill="#f3ead3" stroke="#a39668" stroke-width="2"/>
+  <!-- highlighted top rails -->
+  <rect x="40" y="48" width="420" height="34" fill="#7a0e1c" opacity="0.35"/>
+  <line x1="40" y1="56" x2="460" y2="56" stroke="#cc2030" stroke-width="3"/>
+  <line x1="40" y1="68" x2="460" y2="68" stroke="#1d3a6b" stroke-width="3"/>
+  <!-- highlighted bottom rails -->
+  <rect x="40" y="220" width="420" height="34" fill="#7a0e1c" opacity="0.35"/>
+  <line x1="40" y1="232" x2="460" y2="232" stroke="#cc2030" stroke-width="3"/>
+  <line x1="40" y1="244" x2="460" y2="244" stroke="#1d3a6b" stroke-width="3"/>
+  <line x1="20" y1="150" x2="460" y2="150" stroke="#a39668" stroke-width="2"/>
+  <text x="42" y="48" fill="#7a0e1c" font-size="12">+</text>
+  <text x="42" y="78" fill="#1d3a6b" font-size="12">−</text>
+  <text x="42" y="222" fill="#7a0e1c" font-size="12">+</text>
+  <text x="42" y="252" fill="#1d3a6b" font-size="12">−</text>
+</svg>

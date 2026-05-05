@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 360" font-family="sans-serif">
+  <rect width="320" height="360" fill="#0d121b"/>
+  <rect x="60" y="50" width="200" height="280" rx="6" fill="#1a1f2a" stroke="#3a3f48" stroke-width="2"/>
+  <!-- 7 segments showing "8" -->
+  <g fill="#cc2030" stroke="#7a0e1c" stroke-width="1">
+    <polygon points="100,90 220,90 210,100 110,100"/>
+    <polygon points="100,90 110,100 110,170 100,180"/>
+    <polygon points="220,90 220,180 210,170 210,100"/>
+    <polygon points="100,180 110,170 210,170 220,180 210,190 110,190"/>
+    <polygon points="100,180 110,190 110,260 100,270"/>
+    <polygon points="220,180 220,270 210,260 210,190"/>
+    <polygon points="100,270 110,260 210,260 220,270 210,280 110,280"/>
+  </g>
+  <circle cx="240" cy="280" r="6" fill="#cc2030"/>
+</svg>

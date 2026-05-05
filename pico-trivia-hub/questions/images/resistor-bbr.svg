@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 160" font-family="sans-serif">
+  <rect width="400" height="160" fill="#0d121b"/>
+  <line x1="40" y1="80" x2="120" y2="80" stroke="#bdbdbd" stroke-width="3"/>
+  <line x1="280" y1="80" x2="360" y2="80" stroke="#bdbdbd" stroke-width="3"/>
+  <ellipse cx="120" cy="80" rx="12" ry="28" fill="#dcc890" stroke="#806e3e" stroke-width="2"/>
+  <ellipse cx="280" cy="80" rx="12" ry="28" fill="#dcc890" stroke="#806e3e" stroke-width="2"/>
+  <rect x="120" y="52" width="160" height="56" fill="#e8d49b" stroke="#806e3e" stroke-width="2"/>
+  <!-- bands: brown, black, red, gold -->
+  <rect x="148" y="52" width="14" height="56" fill="#a35a2a"/>
+  <rect x="178" y="52" width="14" height="56" fill="#000"/>
+  <rect x="208" y="52" width="14" height="56" fill="#cc2030"/>
+  <rect x="252" y="52" width="14" height="56" fill="#d4a300"/>
+</svg>

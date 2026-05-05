@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 320" font-family="sans-serif">
+  <rect width="400" height="320" fill="#0d121b"/>
+  <!-- Square body, viewed from above -->
+  <rect x="110" y="70" width="180" height="180" rx="6" fill="#3d6dbf" stroke="#1d3a6b" stroke-width="2"/>
+  <!-- Body screw/marker corners -->
+  <circle cx="124" cy="84" r="3" fill="#1d3a6b"/>
+  <circle cx="276" cy="84" r="3" fill="#1d3a6b"/>
+  <circle cx="124" cy="236" r="3" fill="#1d3a6b"/>
+  <circle cx="276" cy="236" r="3" fill="#1d3a6b"/>
+  <!-- Shaft (round metal can) viewed from above -->
+  <circle cx="200" cy="160" r="48" fill="#9aa0aa" stroke="#5a6070" stroke-width="2"/>
+  <!-- Slot / screwdriver indicator on shaft -->
+  <rect x="196" y="120" width="8" height="80" rx="2" fill="#1a1f2a"/>
+  <!-- 3 leads exiting the front edge, visible as solder lugs -->
+  <line x1="150" y1="250" x2="150" y2="295" stroke="#bdbdbd" stroke-width="4"/>
+  <line x1="200" y1="250" x2="200" y2="295" stroke="#bdbdbd" stroke-width="4"/>
+  <line x1="250" y1="250" x2="250" y2="295" stroke="#bdbdbd" stroke-width="4"/>
+  <circle cx="150" cy="250" r="6" fill="#bdbdbd" stroke="#5a6070" stroke-width="1"/>
+  <circle cx="200" cy="250" r="6" fill="#bdbdbd" stroke="#5a6070" stroke-width="1"/>
+  <circle cx="250" cy="250" r="6" fill="#bdbdbd" stroke="#5a6070" stroke-width="1"/>
+</svg>

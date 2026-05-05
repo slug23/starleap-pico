@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 320" font-family="sans-serif">
+  <rect width="400" height="320" fill="#0d121b"/>
+  <!-- LED bulb -->
+  <ellipse cx="200" cy="135" rx="55" ry="80" fill="#cc2030" stroke="#7a0e1c" stroke-width="3"/>
+  <ellipse cx="180" cy="105" rx="14" ry="22" fill="#ff8a98" opacity="0.6"/>
+  <!-- flange / rim -->
+  <rect x="140" y="200" width="120" height="14" fill="#a3192a" stroke="#5e0712" stroke-width="2"/>
+  <!-- legs (long anode on right, short cathode on left) -->
+  <line x1="180" y1="214" x2="180" y2="280" stroke="#bdbdbd" stroke-width="4"/>
+  <line x1="220" y1="214" x2="220" y2="305" stroke="#bdbdbd" stroke-width="4"/>
+</svg>

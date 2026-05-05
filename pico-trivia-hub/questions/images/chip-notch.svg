@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 220" font-family="sans-serif">
+  <rect width="400" height="220" fill="#0d121b"/>
+  <text x="200" y="22" text-anchor="middle" fill="#7e8aa0" font-size="14">DIP chip — top view</text>
+  <!-- DIP-8 body, horizontal, notch on left edge -->
+  <path d="M 80 70 L 320 70 L 320 150 L 80 150 L 80 120 A 10 10 0 0 0 80 100 L 80 70 Z"
+        fill="#15171a" stroke="#3a3f48" stroke-width="2"/>
+  <text x="200" y="118" text-anchor="middle" fill="#e6ecf3" font-size="20" font-weight="bold">DIP</text>
+  <!-- pins: 4 bottom, 4 top -->
+  <g fill="#bdbdbd">
+    <rect x="103" y="150" width="14" height="34"/>
+    <rect x="163" y="150" width="14" height="34"/>
+    <rect x="223" y="150" width="14" height="34"/>
+    <rect x="283" y="150" width="14" height="34"/>
+    <rect x="103" y="36" width="14" height="34"/>
+    <rect x="163" y="36" width="14" height="34"/>
+    <rect x="223" y="36" width="14" height="34"/>
+    <rect x="283" y="36" width="14" height="34"/>
+  </g>
+  <!-- "notch" label with arrow pointing to the notch on the left edge -->
+  <defs>
+    <marker id="nh" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#cc2030"/>
+    </marker>
+  </defs>
+  <line x1="32" y1="110" x2="74" y2="110" stroke="#cc2030" stroke-width="3" marker-end="url(#nh)"/>
+  <text x="14" y="100" fill="#cc2030" font-size="13" font-weight="bold">notch</text>
+</svg>

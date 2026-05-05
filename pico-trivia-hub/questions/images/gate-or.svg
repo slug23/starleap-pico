@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 220" font-family="sans-serif">
+  <rect width="360" height="220" fill="#0d121b"/>
+  <!-- OR gate: curved back, pointed front -->
+  <line x1="40" y1="80" x2="135" y2="80" stroke="#e6ecf3" stroke-width="3"/>
+  <line x1="40" y1="140" x2="135" y2="140" stroke="#e6ecf3" stroke-width="3"/>
+  <path d="M 110 50 Q 150 110 110 170 Q 200 170 260 110 Q 200 50 110 50 Z" fill="none" stroke="#e6ecf3" stroke-width="3"/>
+  <line x1="260" y1="110" x2="320" y2="110" stroke="#e6ecf3" stroke-width="3"/>
+</svg>

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 280" font-family="sans-serif">
+  <rect width="480" height="280" fill="#0d121b"/>
+  <!-- handles -->
+  <rect x="40" y="80" width="170" height="36" rx="6" fill="#cc2030" stroke="#7a0e1c" stroke-width="2"/>
+  <rect x="40" y="160" width="170" height="36" rx="6" fill="#cc2030" stroke="#7a0e1c" stroke-width="2"/>
+  <!-- handle-to-pivot necks -->
+  <polygon points="200,80 240,120 240,134 200,116" fill="#cc2030" stroke="#7a0e1c" stroke-width="2"/>
+  <polygon points="200,160 240,142 240,156 200,196" fill="#cc2030" stroke="#7a0e1c" stroke-width="2"/>
+  <!-- pivot -->
+  <circle cx="230" cy="138" r="10" fill="#3a3f48" stroke="#9aa0aa" stroke-width="2"/>
+  <!-- jaws with notches -->
+  <rect x="240" y="120" width="200" height="14" fill="#9aa0aa" stroke="#5a6070" stroke-width="2"/>
+  <rect x="240" y="142" width="200" height="14" fill="#9aa0aa" stroke="#5a6070" stroke-width="2"/>
+  <!-- notches -->
+  <g fill="#5a6070">
+    <circle cx="270" cy="137" r="5"/>
+    <circle cx="300" cy="137" r="6"/>
+    <circle cx="335" cy="137" r="7"/>
+    <circle cx="375" cy="137" r="8"/>
+    <circle cx="420" cy="137" r="9"/>
+  </g>
+</svg>

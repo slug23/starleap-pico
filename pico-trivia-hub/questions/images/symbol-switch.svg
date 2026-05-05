@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" font-family="sans-serif">
+  <rect width="400" height="200" fill="#0d121b"/>
+  <line x1="40" y1="120" x2="170" y2="120" stroke="#e6ecf3" stroke-width="3"/>
+  <circle cx="170" cy="120" r="6" fill="none" stroke="#e6ecf3" stroke-width="3"/>
+  <!-- open lever -->
+  <line x1="170" y1="120" x2="240" y2="60" stroke="#e6ecf3" stroke-width="3"/>
+  <circle cx="240" cy="120" r="6" fill="none" stroke="#e6ecf3" stroke-width="3"/>
+  <line x1="240" y1="120" x2="360" y2="120" stroke="#e6ecf3" stroke-width="3"/>
+</svg>

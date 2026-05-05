@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 220" font-family="sans-serif">
+  <rect width="400" height="220" fill="#0d121b"/>
+  <!-- DIP-8 body, horizontal, notch on left edge -->
+  <path d="M 80 70 L 320 70 L 320 150 L 80 150 L 80 120 A 10 10 0 0 0 80 100 L 80 70 Z"
+        fill="#15171a" stroke="#3a3f48" stroke-width="2"/>
+  <text x="200" y="118" text-anchor="middle" fill="#bdbdbd" font-size="36" font-weight="bold">NE555</text>
+  <!-- pins: 4 bottom, 4 top -->
+  <g fill="#bdbdbd">
+    <rect x="103" y="150" width="14" height="34"/>
+    <rect x="163" y="150" width="14" height="34"/>
+    <rect x="223" y="150" width="14" height="34"/>
+    <rect x="283" y="150" width="14" height="34"/>
+    <rect x="103" y="36" width="14" height="34"/>
+    <rect x="163" y="36" width="14" height="34"/>
+    <rect x="223" y="36" width="14" height="34"/>
+    <rect x="283" y="36" width="14" height="34"/>
+  </g>
+</svg>

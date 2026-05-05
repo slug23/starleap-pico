@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 320" font-family="sans-serif">
+  <rect width="400" height="320" fill="#0d121b"/>
+  <!-- TO-92 body: rounded back, flat front -->
+  <path d="M 130 70 Q 130 50, 200 50 Q 270 50, 270 70 L 270 200 L 130 200 Z" fill="#15171a" stroke="#3a3f48" stroke-width="2"/>
+  <path d="M 130 200 L 270 200" stroke="#3a3f48" stroke-width="3"/>
+  <text x="200" y="120" text-anchor="middle" fill="#bdbdbd" font-size="22" font-weight="bold">2N</text>
+  <text x="200" y="155" text-anchor="middle" fill="#bdbdbd" font-size="22" font-weight="bold">2222</text>
+  <line x1="160" y1="200" x2="160" y2="305" stroke="#bdbdbd" stroke-width="3"/>
+  <line x1="200" y1="200" x2="200" y2="305" stroke="#bdbdbd" stroke-width="3"/>
+  <line x1="240" y1="200" x2="240" y2="305" stroke="#bdbdbd" stroke-width="3"/>
+</svg>

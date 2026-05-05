@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" font-family="sans-serif">
+  <rect width="400" height="200" fill="#0d121b"/>
+  <line x1="40" y1="100" x2="170" y2="100" stroke="#e6ecf3" stroke-width="3"/>
+  <!-- long line (positive) -->
+  <line x1="170" y1="50" x2="170" y2="150" stroke="#e6ecf3" stroke-width="4"/>
+  <!-- short line (negative) -->
+  <line x1="195" y1="75" x2="195" y2="125" stroke="#e6ecf3" stroke-width="4"/>
+  <!-- second cell pair -->
+  <line x1="220" y1="50" x2="220" y2="150" stroke="#e6ecf3" stroke-width="4"/>
+  <line x1="245" y1="75" x2="245" y2="125" stroke="#e6ecf3" stroke-width="4"/>
+  <line x1="245" y1="100" x2="360" y2="100" stroke="#e6ecf3" stroke-width="3"/>
+  <text x="155" y="40" fill="#e6ecf3" font-size="22">+</text>
+  <text x="248" y="40" fill="#e6ecf3" font-size="22">−</text>
+</svg>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 280" font-family="sans-serif">
+  <rect width="480" height="280" fill="#0d121b"/>
+  <rect x="40" y="80" width="170" height="36" rx="6" fill="#5a6070" stroke="#3a3f48" stroke-width="2"/>
+  <rect x="40" y="160" width="170" height="36" rx="6" fill="#5a6070" stroke="#3a3f48" stroke-width="2"/>
+  <!-- handle-to-pivot necks -->
+  <polygon points="200,80 240,120 240,134 200,116" fill="#5a6070" stroke="#3a3f48" stroke-width="2"/>
+  <polygon points="200,160 240,142 240,156 200,196" fill="#5a6070" stroke="#3a3f48" stroke-width="2"/>
+  <circle cx="230" cy="138" r="10" fill="#3a3f48" stroke="#9aa0aa" stroke-width="2"/>
+  <!-- long pointed jaws -->
+  <polygon points="240,120 440,134 440,142 240,134" fill="#9aa0aa" stroke="#5a6070" stroke-width="2"/>
+  <polygon points="240,142 440,142 440,150 240,156" fill="#9aa0aa" stroke="#5a6070" stroke-width="2"/>
+</svg>
