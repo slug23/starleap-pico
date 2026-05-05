@@ -263,7 +263,7 @@ async fn main() {
         .layer(cors)
         .with_state(state);
 
-    let addr = SocketAddr::from(([0, 0, 0, 0], 8788));
+    let addr = SocketAddr::from(([0, 0, 0, 0], 8787));
     println!("Pico trivia hub listening on http://{}", addr);
 
     let listener = tokio::net::TcpListener::bind(addr)

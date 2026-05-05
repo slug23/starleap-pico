@@ -29,7 +29,9 @@ cd backend
 cargo run
 ```
 
-Listens on `0.0.0.0:8788`. Pico clients on your local network can POST buzzes to `http://<your-laptop-ip>:8788/api/buzz`.
+Listens on `0.0.0.0:8787` (same port the `pico-buzzer/` firmware expects). Pico clients on your local network can POST buzzes to `http://<your-laptop-ip>:8787/api/buzz`.
+
+Run **only one** hub at a time on this machine — `pico-buzzer-hub` and `pico-trivia-hub` both bind port 8787, so they conflict if started together. Port 8788 is reserved by the firmware for calibration callbacks.
 
 The backend reads `../questions/questions.json` at startup and serves images at `/images/<filename>`.
 
@@ -41,11 +43,11 @@ npm install
 npm run dev -- --host
 ```
 
-Default URL: `http://localhost:5174`. Override the API base with `VITE_API_BASE=http://<host>:8788`.
+Default URL: `http://localhost:5174`. Override the API base with `VITE_API_BASE=http://<host>:8787`.
 
 ## Pointing the Pico buzzers at this hub
 
-The student buzzers are the same `pico-buzzer/` firmware as the buzzer-game project. Set each Pico's `SERVER_HOST` to your laptop / Pi IP and `SERVER_PORT` to `8788` (the trivia hub port — note that's different from the buzzer-game hub on `8787`).
+The student buzzers run the same `pico-buzzer/` firmware as the buzzer-game project, unchanged. Set each Pico's `SERVER_HOST` to this laptop / Pi IP and `SERVER_PORT` to `8787`. Port 8788 stays reserved for the firmware's own calibration listener.
 
 The trivia backend accepts the same `POST /api/buzz` payload shape as `pico-buzzer-hub`, so no Pico-side code changes are required.
 

@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from "vue";
 
-const apiBase = import.meta.env.VITE_API_BASE ?? "http://127.0.0.1:8788";
+const apiBase = import.meta.env.VITE_API_BASE ?? "http://127.0.0.1:8787";
 
 const state = ref(null);
 const error = ref("");
@@ -342,7 +342,7 @@ onUnmounted(() => {
         <p class="checkin-hint">
           Picos appear here once they reach the hub. If nothing shows up, verify
           each Pico's <code>SERVER_HOST</code> is set to this laptop's IP and
-          <code>SERVER_PORT</code> is <code>8788</code>.
+          <code>SERVER_PORT</code> is <code>8787</code>.
         </p>
       </div>
 
